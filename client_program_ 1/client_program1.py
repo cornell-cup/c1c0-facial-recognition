@@ -5,70 +5,69 @@
 
 import io
 import socket
-#import picamera
+import picamera
 import atexit
-from PIL import Image
 
-
-
-def test():
-    server_socket = socket.socket()
-    server_socket.bind(('127.0.0.1', 8000))
-    server_socket.listen(0)
-    server_socket.setblocking(1)
-    print("start working")
-    conn, addr = server_socket.accept()
-    if conn:
-        print(conn)
-        print(addr)
-        connection = conn.makefile('wb')
-    print("Connecting...")
-
-    try:
-        jpgdata = Image.open('testImage.png')
-        connection.send(jpgdata)
-    finally:
-        print("Close connection.")
-        connection.close()
-
-# def camServer():
-#
-#     while True:
-#         print("waiting for connection")
-#         conn, addr = server_socket.accept()
-#         if conn:
-#             print(conn)
-#             print(addr)
-#             connection = conn.makefile('wb')
-#             break
-#
+# def test():
+#     server_socket = socket.socket()
+#     server_socket.bind(('127.0.0.1', 8000))
+#     server_socket.listen(0)
+#     server_socket.setblocking(1)
+#     print("start working")
+#     conn, addr = server_socket.accept()
+#     if conn:
+#         print(conn)
+#         print(addr)
+#         connection = conn.makefile('wb')
 #     print("Connecting...")
+#
 #     try:
-#         stream = io.BytesIO()
-#         camera.capture(stream, 'jpeg')
-#         stream.seek(0)
-#         connection.write(stream.read())
-#         stream.seek(0)
-#         stream.truncate()
+#         f = open('testImage.png', 'r+')
+#         jpgdata = f.read()
+#         f.close()
+#         connection.write(jpgdata)
 #     finally:
 #         print("Close connection.")
 #         connection.close()
 
-# def onExit():
-#     connection.close()
-#     server_socket.close()
-#     print("Exit.")
-#
-# with picamera.PiCamera() as camera:
-#     camera.resolution = (640, 480)
-#     camera.start_preview()
-#     atexit.register(onExit)
-#
-#     server_socket = socket.socket()
-#     server_socket.bind(('0.0.0.0', 8000))
-#     server_socket.listen(0)
-#     server_socket.setblocking(1)
+def camServer():
+
+    while True:
+        print("waiting for connection")
+        conn, addr = server_socket.accept()
+        if conn:
+            print(conn)
+            print(addr)
+            connection = conn.makefile('wb')
+            break
+
+    print("Connecting...")
+    try:
+        stream = io.BytesIO()
+        camera.capture(stream, 'jpeg')
+        stream.seek(0)
+        connection.write(stream.read())
+        stream.seek(0)
+        stream.truncate()
+    finally:
+        print("Close connection.")
+        connection.close()
+
+def onExit():
+    connection.close()
+    server_socket.close()
+    print("Exit.")
+
+with picamera.PiCamera() as camera:
+    camera.resolution = (640, 480)
+    camera.start_preview()
+    atexit.register(onExit)
+
+    server_socket = socket.socket()
+    server_socket.bind(('169.254.155.200', 8000))
+    server_socket.listen(0)
+    server_socket.setblocking(1)
 
 while True:
-       # camServer()
-    test()
+    camServer()
+    # test()
