@@ -5,46 +5,70 @@
 
 import io
 import socket
-import picamera
+#import picamera
 import atexit
+from PIL import Image
 
-def camServer():
 
-    while True:
-        print("waiting for connection")
-        conn, addr = server_socket.accept()
-        if conn:
-            print(conn)
-            print(addr)
-            connection = conn.makefile('wb')
-            break
 
+def test():
+    server_socket = socket.socket()
+    server_socket.bind(('127.0.0.1', 8000))
+    server_socket.listen(0)
+    server_socket.setblocking(1)
+    print("start working")
+    conn, addr = server_socket.accept()
+    if conn:
+        print(conn)
+        print(addr)
+        connection = conn.makefile('wb')
     print("Connecting...")
+
     try:
-        stream = io.BytesIO()
-        camera.capture(stream, 'jpeg')
-        stream.seek(0)
-        connection.write(stream.read())
-        stream.seek(0)
-        stream.truncate()
+        jpgdata = Image.open('testImage.png')
+        connection.send(jpgdata)
     finally:
         print("Close connection.")
         connection.close()
 
-def onExit():
-    connection.close()
-    server_socket.close()
-    print("Exit.")
+# def camServer():
+#
+#     while True:
+#         print("waiting for connection")
+#         conn, addr = server_socket.accept()
+#         if conn:
+#             print(conn)
+#             print(addr)
+#             connection = conn.makefile('wb')
+#             break
+#
+#     print("Connecting...")
+#     try:
+#         stream = io.BytesIO()
+#         camera.capture(stream, 'jpeg')
+#         stream.seek(0)
+#         connection.write(stream.read())
+#         stream.seek(0)
+#         stream.truncate()
+#     finally:
+#         print("Close connection.")
+#         connection.close()
 
-with picamera.PiCamera() as camera:
-    camera.resolution = (640, 480)
-    camera.start_preview()
-    atexit.register(onExit)
+# def onExit():
+#     connection.close()
+#     server_socket.close()
+#     print("Exit.")
+#
+# with picamera.PiCamera() as camera:
+#     camera.resolution = (640, 480)
+#     camera.start_preview()
+#     atexit.register(onExit)
+#
+#     server_socket = socket.socket()
+#     server_socket.bind(('0.0.0.0', 8000))
+#     server_socket.listen(0)
+#     server_socket.setblocking(1)
 
-    server_socket = socket.socket()
-    server_socket.bind(('0.0.0.0', 8000))
-    server_socket.listen(0)
-    server_socket.setblocking(1)
-
-    while True:
-        camServer()
+while True:
+       # camServer()
+    test()
