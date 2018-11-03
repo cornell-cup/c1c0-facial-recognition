@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/ClientProgram_2/client_program2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientProgram_2/inital program.py" beforeDir="false" />
-    </list>
+    <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,8 +14,8 @@
       <file leaf-file-name="client_program2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+            <state relative-caret-position="140">
+              <caret line="7" column="29" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
             </state>
           </provider>
         </entry>
@@ -140,10 +137,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-904" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+        <state relative-caret-position="140">
+          <caret line="7" column="29" selection-start-line="7" selection-start-column="29" selection-end-line="7" selection-end-column="29" />
         </state>
       </provider>
     </entry>
