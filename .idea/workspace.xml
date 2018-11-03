@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ClientProgram_2/client_program2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ClientProgram_2/client_program2.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,8 +16,8 @@
       <file leaf-file-name="client_program2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="316">
-              <caret line="30" column="32" lean-forward="true" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
+            <state relative-caret-position="156">
+              <caret line="22" selection-start-line="22" selection-end-line="22" />
               <folding>
                 <element signature="e#138#149#0" expanded="true" />
               </folding>
@@ -61,17 +60,12 @@
         <subPane>
           <expand>
             <path>
-              <item name="r2-facial_recognition" type="b2602c69:ProjectViewProjectNode" />
-              <item name="r2-facial_recognition" type="462c0819:PsiDirectoryNode" />
+              <item name="r2-facial_recognition_client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="r2-facial_recognition_client" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
-              <item name="r2-facial_recognition" type="b2602c69:ProjectViewProjectNode" />
-              <item name="r2-facial_recognition" type="462c0819:PsiDirectoryNode" />
-              <item name="client_program_ 1" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="r2-facial_recognition" type="b2602c69:ProjectViewProjectNode" />
-              <item name="r2-facial_recognition" type="462c0819:PsiDirectoryNode" />
+              <item name="r2-facial_recognition_client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="r2-facial_recognition_client" type="462c0819:PsiDirectoryNode" />
               <item name="ClientProgram_2" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -111,8 +105,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="270" y="23" width="1260" height="737" extended-state="0" />
-    <editor active="true" />
+    <frame x="20" y="23" width="1260" height="737" extended-state="0" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -137,6 +130,26 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
+          <folding>
+            <element signature="e#138#149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="30" column="32" lean-forward="true" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
+          <folding>
+            <element signature="e#138#149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="100">
@@ -169,14 +182,12 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-904" />
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="316">
-          <caret line="30" column="32" lean-forward="true" selection-start-line="30" selection-start-column="32" selection-end-line="30" selection-end-column="32" />
+        <state relative-caret-position="156">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
           <folding>
             <element signature="e#138#149#0" expanded="true" />
           </folding>
