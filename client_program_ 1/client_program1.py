@@ -68,6 +68,7 @@ with picamera.PiCamera() as camera:
     server_socket.listen(0)
     server_socket.setblocking(1)
 
+
 while True:
     camServer()
     # test()
