@@ -31,7 +31,6 @@ import io
 import socket
 import picamera
 import atexit
-import keyboard
 
 def camServer():
 
@@ -70,10 +69,6 @@ with picamera.PiCamera() as camera:
     server_socket.bind(('0.0.0.0', 8000))
     server_socket.listen(0)
     server_socket.setblocking(1)
-
-    #we listen to the keyboard event pressing a
+    
     while True:
-        if keyboard.is_pressed('a'):
-            camServer()
-        else:
-            pass
+        camServer()
