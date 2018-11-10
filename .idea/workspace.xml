@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client_program_ 1/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/client_program_ 1/camera.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,10 +16,29 @@
       <file leaf-file-name="client_program2.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="22" selection-start-line="22" selection-end-line="22" />
+            <state relative-caret-position="198">
+              <caret line="14" column="55" lean-forward="true" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
               <folding>
                 <element signature="e#138#149#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="client_program1.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-347" />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="camera.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="436">
+              <caret line="76" column="23" lean-forward="true" selection-start-line="76" selection-start-column="23" selection-end-line="76" selection-end-column="23" />
+              <folding>
+                <element signature="e#695#704#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -34,6 +53,11 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>API_ENDPOINT_CheckInData</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -42,11 +66,12 @@
       <list>
         <option value="$PROJECT_DIR$/ClientProgram_2/inital program.py" />
         <option value="$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
+        <option value="$PROJECT_DIR$/client_program_ 1/camera.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="20" />
+    <option name="x" value="172" />
     <option name="y" value="23" />
     <option name="width" value="1260" />
     <option name="height" value="737" />
@@ -66,6 +91,11 @@
             <path>
               <item name="r2-facial_recognition_client" type="b2602c69:ProjectViewProjectNode" />
               <item name="r2-facial_recognition_client" type="462c0819:PsiDirectoryNode" />
+              <item name="client_program_ 1" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="r2-facial_recognition_client" type="b2602c69:ProjectViewProjectNode" />
+              <item name="r2-facial_recognition_client" type="462c0819:PsiDirectoryNode" />
               <item name="ClientProgram_2" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -77,7 +107,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -105,7 +135,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="20" y="23" width="1260" height="737" extended-state="0" />
+    <frame x="172" y="23" width="1260" height="737" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -129,7 +160,22 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+          <folding>
+            <element signature="e#138#149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="440">
@@ -178,16 +224,25 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/inital program.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-347" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="436">
+          <caret line="76" column="23" lean-forward="true" selection-start-line="76" selection-start-column="23" selection-end-line="76" selection-end-column="23" />
+          <folding>
+            <element signature="e#695#704#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        <state relative-caret-position="198">
+          <caret line="14" column="55" lean-forward="true" selection-start-line="14" selection-start-column="55" selection-end-line="14" selection-end-column="55" />
           <folding>
             <element signature="e#138#149#0" expanded="true" />
           </folding>
