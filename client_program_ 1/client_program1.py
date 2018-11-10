@@ -7,6 +7,7 @@ import io
 import socket
 import picamera
 import atexit
+import keyboard
 
 # def test():
 #     server_socket = socket.socket()
@@ -69,5 +70,6 @@ with picamera.PiCamera() as camera:
     server_socket.setblocking(1)
 
 while True:
-    camServer()
+    if keyboard.is_pressed('a'):
+        camServer()
     # test()
