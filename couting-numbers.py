@@ -20,25 +20,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
-
+#Program to Count Numbers
 # This is an example program to show how to generate speech with the Raspberry Pi.
 # You can see the full written tutorial here:  http://www.dexterindustries.com/howto/make-your-raspberry-pi-speak/
-# This program makes the Pi speak aloud the text entered by the user and it also records it to a file named Text.wav.
+#This program makes the Pi count numbers down from the number entered by the user till zero.
 
 from num2words import num2words
 from subprocess import call
 
-
 cmd_beg= 'espeak '
-cmd_end= ' | aplay /home/pi/Desktop/Text.wav  2>/dev/null' # To play back the stored .wav file and to dump the std errors to /dev/null
-cmd_out= '--stdout > /home/pi/Desktop/Text.wav ' # To store the voice file
+cmd_end= ' 2>/dev/null' # To dump the std errors to /dev/null
 
-#assign the information(the thing for R2 to say) to the text variable suppposed to be a Json
-text=' successfuly signed in '
-print(text)
+
+x = int(input("Enter a number: "))
+count = num2words(x)+' Count Down Starts'
+print(count)
 
 #Replacing ' ' with '_' to identify words in the text entered
-text = text.replace(' ', '_')
-
+count = count.replace(' ', '_')
 #Calls the Espeak TTS Engine to read aloud a Text
-call([cmd_beg+cmd_out+text+cmd_end], shell=True)
+call([cmd_beg+count+cmd_end], shell=True)
+
+#To do a Count Down
+for i in range(x,-1,-1): # To count numbers down from the entered number till zero
+	cmd=num2words(i) #To convert the Numbers to Text
+	print(i)
+    #Calls the Espeak TTS Engine to read aloud the Numbers
+	call([cmd_beg+cmd+cmd_end], shell=True)
