@@ -15,14 +15,14 @@ import time
 import base64
 from PIL import Image
 
-url = "http://127.0.0.1:5000/identify-face"
+url = "http://127.0.0.1:5000/analyze"
 
 def send_test_image():
     files = {
         "image": open("test.png", "rb")
     }
-    requests.post(url, files=files, verify=False)
-    return requests.json()
+    response = requests.post(url, files=files, verify=False)
+    return response
 
 #get the check in result from the json and return the reuslt
 def JsonLoad(CheckInData):
@@ -44,8 +44,9 @@ def speakResult(person, CurrentTime, Status, MeetingType):
 
 def main():
 	# capture image
-	camera.capture("test.png")
-	json_feedback = send_test_image()
+    with picamera.PiCamera() as camera:
+        camera.capture("test.png")
+    json_feedback = send_test_image()
     person, CurrentTime, Status, MeetingType = JsonLoad(json_feedback)
     speakResult(person, CurrentTime, Status, MeetingType)
 
