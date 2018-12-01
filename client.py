@@ -14,8 +14,11 @@ import atexit
 import time
 import base64
 from PIL import Image
+from num2words import num2words
+from subprocess import call
+import subprocess
 
-url = "http://10.129.20.104:11000/identify-face"
+url = "http://10.129.3.148:11000/identify-face"
 
 def send_test_image():
     files = {
@@ -36,12 +39,17 @@ def JsonLoad(CheckInData):
 
 #speak the check in result using
 def speakResult(person, checkInStatus, meetingType):
-	print(person)
-	print(checkInStatus)
-	print(meetingType)
+    print(person)
+    if person == 'None':
+        text = 'No such a person'
+    if person == None:
+        text = 'No such a person and person is none'
+    else:
+        text = person + 'successfully check in'
+    subprocess.check_output(['espeak','-ven-us', text])
 
 def main():
-	# capture image
+# capture image
     with picamera.PiCamera() as camera:
         camera.capture("test.png")
     json_feedback = send_test_image()
@@ -49,3 +57,4 @@ def main():
     speakResult(person, checkInStatus, meetingType)
 
 main()
+
