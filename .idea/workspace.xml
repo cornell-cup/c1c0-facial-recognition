@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/multiple_people.jpeg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/locate_face.py" beforeDir="false" afterPath="$PROJECT_DIR$/locate_face.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,11 +13,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="crop_face.py" pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/robot_control.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/locate_face.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="452">
+              <caret line="34" column="48" selection-start-line="34" selection-start-column="48" selection-end-line="34" selection-end-column="48" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/crop_face.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
+            <state relative-caret-position="248">
+              <caret line="27" column="5" lean-forward="true" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -27,23 +42,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="locate_face.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/locate_face.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+            <state relative-caret-position="198">
+              <caret line="11" column="11" selection-start-line="11" selection-end-line="12" />
             </state>
           </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Obama.jpg" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Obama.jpg">
-          <provider selected="true" editor-type-id="images" />
-        </entry>
-      </file>
-      <file leaf-file-name="multiple_people.jpeg" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/multiple_people.jpeg">
-          <provider selected="true" editor-type-id="images" />
         </entry>
       </file>
     </leaf>
@@ -71,6 +76,7 @@
         <option value="$PROJECT_DIR$/client_program_ 1/camera.py" />
         <option value="$PROJECT_DIR$/client_program_ 1/client_program1.py" />
         <option value="$PROJECT_DIR$/crop_face.py" />
+        <option value="$PROJECT_DIR$/locate_face.py" />
       </list>
     </option>
   </component>
@@ -138,6 +144,9 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
@@ -159,76 +168,34 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="94" y="31" width="1280" height="777" extended-state="0" />
+    <frame x="94" y="23" width="1413" height="962" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32859176" />
-      <window_info anchor="bottom" id="Version Control" order="9" weight="0.32859176" />
-      <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22538294" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997155" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32988507" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997155" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Python Console" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.32859176" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <option name="time" value="1" />
-    </breakpoint-manager>
-  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/inital program.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/inital program.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
-    <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/inital program.py" />
     <entry file="file://$PROJECT_DIR$/client_program_ 1/camera.py" />
     <entry file="file://$PROJECT_DIR$/client_program_ 1/client_program1.py" />
     <entry file="file://$PROJECT_DIR$/ClientProgram_2/client_program2.py" />
     <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/robot_control.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/multiple_people.jpeg">
@@ -237,19 +204,32 @@
     <entry file="file://$PROJECT_DIR$/Obama.jpg">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/locate_face.py">
+    <entry file="file://$PROJECT_DIR$/robot_control.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        <state relative-caret-position="198">
+          <caret line="11" column="11" selection-start-line="11" selection-end-line="12" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/crop_face.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
+        <state relative-caret-position="248">
+          <caret line="27" column="5" lean-forward="true" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/locate_face.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="452">
+          <caret line="34" column="48" selection-start-line="34" selection-start-column="48" selection-end-line="34" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>

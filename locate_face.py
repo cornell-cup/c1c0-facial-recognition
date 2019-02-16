@@ -30,7 +30,11 @@ def main():
             image_x, image_y, d = image.shape
             if face_center > image_x * 0.4 and face_center < image_x * 0.6:
                 # crop image
+                face_image = image[top:bottom, left:right]
+                pil_image = Image.fromarray(face_image)
+                pil_image.save('/alittletest.png', 'PNG')
                 break
         # rotate head
+        print("rotate head")
 
 main()
