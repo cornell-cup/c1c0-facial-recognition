@@ -58,8 +58,9 @@ def speakResult(person, checkInStatus, meetingType):
         text = person + 'successfully check in'
     subprocess.check_output(['espeak','-ven-us', text])
     
-def main():
-# capture image
+    
+def DetectFace():
+    # capture image
     failure_tries = 0
     while (failure_tries < 3):
         with picamera.PiCamera() as camera:
@@ -84,14 +85,30 @@ def main():
                 pil_image = Image.fromarray(face_image)
                 pil_image.save('cropped.png', 'PNG')
                 print("cropped")
-                break
+                return True
         else:
             # shake head and say i cannot find you
             failure_tries += 1
+    return False
             
-    print("detected a valid face")  
-    json_feedback = send_test_image()
-    person, checkInStatus, meetingType = JsonLoad(json_feedback)
-    speakResult(person, checkInStatus, meetingType)
+def CheckIn():
+    # detected a valid face
+    if DetectFace():
+        print("detected a valid face")  
+        json_feedback = send_test_image()
+        person, checkInStatus, meetingType = JsonLoad(json_feedback)
+        speakResult(person, checkInStatus, meetingType)
+        
+    else:
+        print("cannot detect a valid face") 
     
-main()
+# name should be the parameter to be passed in
+def MakeFriend(name):
+    
+    if DetectFace():
+        print("detected a valid face")  
+        # json_feedback = send_test_image()
+        # TODO to send a new image along with name
+        
+    else:
+        print("cannot detect a valid face") 
