@@ -50,9 +50,11 @@ def speakResult(person, checkInStatus, meetingType):
     subprocess.check_output(['espeak','-ven-us', text])
 
 def shakeHead():
-    int angle = 40
+    # angle is the angle we want R2 to rotate its head
+    angle = 60
     source = "PI"
     destination = "ARDUINO"
+    id = 00000000#ID is the serial number of the ARDUINO controlling the head_Rotation
     data = angle
     encode(source, destination, id, data)
 
