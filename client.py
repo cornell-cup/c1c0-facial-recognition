@@ -1,8 +1,8 @@
 # This Client Program
 # Voice triggered
 # Get image from Pi, send it to computing server by using POST
-# Receive json feedback from server 
-# Make robot react to parsed json 
+# Receive json feedback from server
+# Make robot react to parsed json
 
 import json
 import requests
@@ -17,6 +17,7 @@ from PIL import Image
 from num2words import num2words
 from subprocess import call
 import subprocess
+import robot_control
 
 url = "http://10.129.3.148:11000/identify-face"
 
@@ -48,6 +49,13 @@ def speakResult(person, checkInStatus, meetingType):
         text = person + 'successfully check in'
     subprocess.check_output(['espeak','-ven-us', text])
 
+def shakeHead():
+    int angle = 40
+    source = "PI"
+    destination = "ARDUINO"
+    data = angle
+    encode(source, destination, id, data)
+
 def main():
 # capture image
     with picamera.PiCamera() as camera:
@@ -58,3 +66,4 @@ def main():
 
 main()
 
+c
