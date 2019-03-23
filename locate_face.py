@@ -28,7 +28,7 @@ def find_face(image):
     
     return None
 
-url = "http://10.129.3.148:11000/identify-face"
+url = "http://10.129.2.193:11000/identify-face"
 
 def send_test_image():
     files = {
@@ -62,10 +62,10 @@ def speakResult(person, checkInStatus, meetingType):
 def DetectFace():
     # capture image
     failure_tries = 0
+    camera = picamera.PiCamera()
+    camera.resolution = ( 960, 540 )
     while (failure_tries < 3):
-        with picamera.PiCamera() as camera:
-            camera.resolution = ( 960, 540 )
-            image = camera.capture("capture.png")
+        image = camera.capture("capture.png")
 
         # TODO http://jireren.github.io/blog/2016/02/27/face-recognition-system-based-on-raspberry-pi-2/
 
@@ -81,6 +81,12 @@ def DetectFace():
             image_x, image_y, d = image.shape
             if face_center > image_y * 0.3 and face_center < image_y * 0.7:
                 # crop image
+                
+                top = top - min(50, bottom)
+                bottom = bottom + min(50, image_x - top)
+                left = left - min(50, left)
+                right = right + min(50, image_y - right)
+                
                 face_image = image[top:bottom, left:right]
                 pil_image = Image.fromarray(face_image)
                 pil_image.save('cropped.png', 'PNG')
@@ -97,7 +103,8 @@ def CheckIn():
         print("detected a valid face")  
         json_feedback = send_test_image()
         person, checkInStatus, meetingType = JsonLoad(json_feedback)
-        speakResult(person, checkInStatus, meetingType)
+        print(person, checkInStatus, meetingType)
+        # speakResult(person, checkInStatus, meetingType)
         
     else:
         print("cannot detect a valid face") 
@@ -111,4 +118,6 @@ def MakeFriend(name):
         # TODO to send a new image along with name
         
     else:
-        print("cannot detect a valid face") 
+        print("cannot detect a valid face")
+        
+CheckIn()
