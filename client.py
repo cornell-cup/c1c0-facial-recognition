@@ -1,3 +1,9 @@
+# This Client Program
+# Voice triggered
+# Get image from Pi, send it to computing server by using POST
+# Receive json feedback from server
+# Make robot react to parsed json
+
 import json
 import requests
 import sys
@@ -6,6 +12,10 @@ import socket
 import picamera
 import face_recognition
 from PIL import Image
+from num2words import num2words
+from subprocess import call
+import subprocess
+import robot_control
 
 # find largest face in the image
 # return None if no face is found or the face is too small
@@ -25,7 +35,7 @@ def find_face(image):
     """
     if len(face_locations) > 0:
         return face_locations[0]
-    
+
     return None
 
 url = "http://10.129.2.193:11000/identify-face"
@@ -57,23 +67,17 @@ def speakResult(person, checkInStatus, meetingType):
     else:
         text = person + 'successfully check in'
     subprocess.check_output(['espeak','-ven-us', text])
-    
-    
+
+
 def DetectFace():
     # capture image
     failure_tries = 0
     camera = picamera.PiCamera()
-    camera.resolution = ( 960, 540 )
-    while (failure_tries < 3):
+    camera.resolution = (960, 540)
+    while failure_tries < 3:
         image = camera.capture("capture.png")
-
-        # TODO http://jireren.github.io/blog/2016/02/27/face-recognition-system-based-on-raspberry-pi-2/
-
         image = face_recognition.load_image_file("capture.png")
         face_location = find_face(image)
-        
-        print(face_location)
-        
         if face_location != None:
             top, right, bottom, left = face_location
             # check if the face is within the middle 20% of the image
@@ -81,12 +85,12 @@ def DetectFace():
             image_x, image_y, d = image.shape
             if face_center > image_y * 0.3 and face_center < image_y * 0.7:
                 # crop image
-                
+
                 top = top - min(50, bottom)
                 bottom = bottom + min(50, image_x - top)
                 left = left - min(50, left)
                 right = right + min(50, image_y - right)
-                
+
                 face_image = image[top:bottom, left:right]
                 pil_image = Image.fromarray(face_image)
                 pil_image.save('cropped.png', 'PNG')
@@ -104,7 +108,7 @@ def writeResultToFile(json_feedback):
 def CheckIn():
     # detected a valid face
     if DetectFace():
-        print("detected a valid face")  
+        print("detected a valid face")
         json_feedback = send_test_image()
         person, checkInStatus, meetingType = JsonLoad(json_feedback)
         print(person, checkInStatus, meetingType)
@@ -112,17 +116,17 @@ def CheckIn():
         writeResultToFile(json_feedback)
 
     else:
-        print("cannot detect a valid face") 
-    
+        print("cannot detect a valid face")
+
 # name should be the parameter to be passed in
 def MakeFriend(name):
-    
+
     if DetectFace():
-        print("detected a valid face")  
+        print("detected a valid face")
         # json_feedback = send_test_image()
         # TODO to send a new image along with name
-        
+
     else:
         print("cannot detect a valid face")
-        
+
 CheckIn()
