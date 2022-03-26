@@ -4,24 +4,17 @@
 # Receive json feedback from server
 # Make robot react to parsed json
 
-import json
 import requests
-import sys
-import io
-import socket
 import picamera
 import face_recognition
 from PIL import Image
-from num2words import num2words
-from subprocess import call
 import subprocess
-import robot_control
+
 
 # find largest face in the image
 # return None if no face is found or the face is too small
 # (less than 1/12 of the image)
 def find_face(image):
-
     face_locations = face_recognition.face_locations(image)
     """
     for face_location in face_locations:
@@ -38,7 +31,9 @@ def find_face(image):
 
     return None
 
+
 url = "http://10.129.2.193:11000/identify-face"
+
 
 def send_test_image():
     files = {
@@ -47,29 +42,30 @@ def send_test_image():
     response = requests.post(url, files=files, verify=False)
     return response.json()
 
-#get the check in result from the json and return the reuslt
-def JsonLoad(CheckInData):
-    #temp = json.load(CheckInData)
-    temp = CheckInData
+
+# get the check in result from the json and return the reuslt
+def load_json(check_in_data):
+    # temp = json.load(CheckInData)
+    temp = check_in_data
     person = temp['name']
-    checkInStatus = temp['checkInStatus']
-    meetingType = temp['meetingType']
-    return person, checkInStatus, meetingType
+    check_in_status = temp['check_in_status']
+    meeting_type = temp['meeting_type']
+    return person, check_in_status, meeting_type
 
 
-#speak the check in result using
-def speakResult(person, checkInStatus, meetingType):
+# speak the check in result using
+def speak_result(person, check_in_status, meeting_type):
     print(person)
     if person == 'None':
         text = 'No such a person'
-    if person == None:
+    if person is None:
         text = 'No such a person and person is none'
     else:
         text = person + 'successfully check in'
-    subprocess.check_output(['espeak','-ven-us', text])
+    subprocess.check_output(['espeak', '-ven-us', text])
 
 
-def DetectFace():
+def detect_face():
     # capture image
     failure_tries = 0
     camera = picamera.PiCamera()
@@ -78,12 +74,12 @@ def DetectFace():
         image = camera.capture("capture.png")
         image = face_recognition.load_image_file("capture.png")
         face_location = find_face(image)
-        if face_location != None:
+        if face_location is not None:
             top, right, bottom, left = face_location
             # check if the face is within the middle 20% of the image
             face_center = (right + left) / 2
             image_x, image_y, d = image.shape
-            if face_center > image_y * 0.3 and face_center < image_y * 0.7:
+            if image_y * 0.3 < face_center < image_y * 0.7:
                 # crop image
 
                 top = top - min(50, bottom)
@@ -101,27 +97,29 @@ def DetectFace():
             failure_tries += 1
     return False
 
-def writeResultToFile(json_feedback):
+
+def write_result_to_file(json_feedback):
     with open('facial_recognition_result.txt', 'wb') as f:
         f.write(json_feedback + '\n')
 
-def CheckIn():
+
+def check_in():
     # detected a valid face
-    if DetectFace():
+    if detect_face():
         print("detected a valid face")
         json_feedback = send_test_image()
-        person, checkInStatus, meetingType = JsonLoad(json_feedback)
-        print(person, checkInStatus, meetingType)
-        # speakResult(person, checkInStatus, meetingType)
-        writeResultToFile(json_feedback)
+        person, check_in_status, meeting_type = load_json(json_feedback)
+        print(person, check_in_status, meeting_type)
+        # speakResult(person, check_in_status, meeting_type)
+        write_result_to_file(json_feedback)
 
     else:
         print("cannot detect a valid face")
 
-# name should be the parameter to be passed in
-def MakeFriend(name):
 
-    if DetectFace():
+# name should be the parameter to be passed in
+def make_friend(name):
+    if detect_face():
         print("detected a valid face")
         # json_feedback = send_test_image()
         # TODO to send a new image along with name
@@ -129,4 +127,6 @@ def MakeFriend(name):
     else:
         print("cannot detect a valid face")
 
-CheckIn()
+
+if __name__ == '__main__':
+    check_in()
