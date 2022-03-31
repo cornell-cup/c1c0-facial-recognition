@@ -1,5 +1,6 @@
 requests
 picamera
+numpy
 face_recognition
 Pillow
 num2words
