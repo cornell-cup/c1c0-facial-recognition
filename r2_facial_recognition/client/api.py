@@ -1,14 +1,20 @@
 import numpy as np
+import cv2
 
 
 LOCAL = None
-from .local import check_faces, load_images
+try:
+    from .local import check_faces, load_images
+except ImportError:
+    from r2_facial_recognition.client.local import check_faces as local_check_faces, load_images as local_load_images
 
+SCALE_FACTOR = 0.25
 
 def set_local(filepath: str):
-    global LOCAL
-    LOCAL = False
-    load_images()
+    global LOCAL, mappings, PATH
+    LOCAL = True
+    PATH = filepath
+    mappings = local_load_images(filepath)
 
 
 def set_remote(conn_info: dict):
@@ -19,10 +25,14 @@ def set_remote(conn_info: dict):
 
 
 def analyze_face(img: np.ndarray):
+
+    resized = cv2.resize(img, (0,0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
+    
+
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        pass
+        check_faces(resized, mappings)
     else:
         pass
 
@@ -31,15 +41,7 @@ def load_images():
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        pass        
+        local_load_images()
     else:
         pass
 
-
-def check_faces():
-    if LOCAL is None:
-        raise RuntimeError('Mode unset, please call set_local or set_remote')
-    elif LOCAL:
-        pass        
-    else:
-        pass

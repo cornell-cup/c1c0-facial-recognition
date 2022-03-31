@@ -1,5 +1,6 @@
 requests
 picamera
+opencv-python
 numpy
 face_recognition
 Pillow
