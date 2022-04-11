@@ -1,8 +1,10 @@
-__all__ = ['load_images', 'check_faces']
+__all__ = ['local_load_images', 'local_check_faces']
 
 try:
-    from .recognition import load_images, check_faces
+    from .recognition import (
+        _load_images as local_load_images, _check_faces as local_check_faces
+    )
 except ImportError:
     from r2_facial_recognition.client.local.recognition import (
-        load_images, check_faces
+        _load_images, _check_faces
     )

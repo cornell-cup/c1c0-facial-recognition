@@ -1,35 +1,47 @@
 from argparse import ArgumentParser
+import cv2
 
-DEFAULT_PATH = '.cache'
+try:
+    from . import api
+except ImportError:
+    from r2_facial_recognition.client import api
+
+DEFAULT_PATH = 'resources/people'
 DEFAULT_LOCAL = False
 DEFAULT_CACHE = True
+DEFAULT_CACHE_LOCATION = '.cache'
+DEFAULT_IP = '192.168.1.5' # change to whatever the default should be
+DEFAULT_PORT = 8080  # 8080 HTTP non-privileged testing port. Use 80 for
+# privilege
 
 
 parser = ArgumentParser()
+# Add arguments
 parser.add_argument('-l', '--local',
                     action=f'store_{str(not DEFAULT_LOCAL).lower()}')
 parser.add_argument('-nc', '--no-cache',
                     action=f'store_{str(not DEFAULT_CACHE).lower()}')
-parser.add_argument('-p', '--path', action='store', default='.cache')
-
+# Stores
+parser.add_argument('-p', '--path', action='store', default=DEFAULT_PATH)
+parser.add_argument('-cl', '--cache-location', action='store',
+                    default=DEFAULT_CACHE_LOCATION)
+parser.add_argument('-ip', '--host', action='store', default=DEFAULT_IP)
+parser.add_argument('-P', '--port', action='store', type=int,
+                    default=DEFAULT_PORT)
+# Grab the namespace
 args, _ = parser.parse_known_args()
-local = getattr(args, 'local', DEFAULT_LOCAL)
-cache = getattr(args, 'no_cache', DEFAULT_CACHE)
-path = getattr(args, 'path', DEFAULT_PATH)
 
+cache_location = getattr(args, 'cache_loc', DEFAULT_CACHE_LOCATION)
 
-if local:
-    try:
-        from . import local as api
-    except ImportError:
-        from r2_facial_recognition.client import local as api
-# else:
-    # Do server api import
-    # temp:
-    try:
-        from . import local as api
-    except ImportError:
-        from r2_facial_recognition.client import local as api
+# Bootstrap module with appropriate default value for LOCAL for proper
+#  functionality.
+api.LOCAL = getattr(args, 'local', DEFAULT_LOCAL)
+api.CACHE = getattr(args, 'no_cache', DEFAULT_CACHE)
+api.CACHE_LOCATION = getattr(args, 'cache_location', DEFAULT_CACHE_LOCATION)
+api.PATH = getattr(args, 'path', DEFAULT_PATH)
 
-mappings = api.load_images(path, cache_location=cache)
-
+api.MAPPINGS = api.load_images()
+print(api.MAPPINGS)
+# Load image
+img = cv2.imread('resources/people/Christopher_De Jesus.jpeg')
+api.analyze_face(img)

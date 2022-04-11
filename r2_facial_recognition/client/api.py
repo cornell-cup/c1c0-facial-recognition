@@ -1,47 +1,64 @@
+from typing import Mapping, Optional
+
 import numpy as np
 import cv2
+from requests import get, post
 
 
 LOCAL = None
+# LOCAL variables
+MAPPINGS: Optional[Mapping[str, np.ndarray]] = None
+PATH: Optional[str] = None
+# REMOTE (not LOCAL) variable
+IP: Optional[str] = None
+PORT: Optional[int] = None
+
 try:
-    from .local import check_faces, load_images
+    from .local import local_check_faces, local_load_images
 except ImportError:
-    from r2_facial_recognition.client.local import check_faces as local_check_faces, load_images as local_load_images
+    from r2_facial_recognition.client.local import (
+        local_check_faces, local_load_images
+    )
+
 
 SCALE_FACTOR = 0.25
 
+
 def set_local(filepath: str):
-    global LOCAL, mappings, PATH
+    global LOCAL, MAPPINGS, PATH
     LOCAL = True
     PATH = filepath
-    mappings = local_load_images(filepath)
+    MAPPINGS = local_load_images(filepath)
 
 
-def set_remote(conn_info: dict):
-    global ip, port, LOCAL
-    ip = conn_info['ip']
-    port = conn_info['port']
+def set_remote(ip: Optional[str] = None, port: Optional[int] = None):
+    global LOCAL, IP, PORT
     LOCAL = False
+    IP = ip if ip is not None else IP
+    PORT = port if port is not None else PORT
 
 
 def analyze_face(img: np.ndarray):
 
-    resized = cv2.resize(img, (0,0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
-    
+    resized = cv2.resize(img, (0, 0), fx=SCALE_FACTOR, fy=SCALE_FACTOR)
 
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        check_faces(resized, mappings)
+        local_check_faces(resized, MAPPINGS)
     else:
-        pass
+        # Wish I could send image directly over get since it is not changing
+        # data on the server, but unfortunately not possible. Would have to
+        # convert to Base64... maybe try it later and test speed later.
+        # get(f'{IP}:{PORT}', params=())
+        post(f'{IP}:{PORT}/analyze_face', files=img.tobytes())
 
 
 def load_images():
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        local_load_images()
+        local_load_images(PATH, MAPPINGS)
     else:
-        pass
+        get(f'{IP}:{PORT}/load_images')
 

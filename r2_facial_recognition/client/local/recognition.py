@@ -11,9 +11,9 @@ CACHE_LOCATION = '.cache'
 IMG_EXTs = ['.jpg', '.jpeg', '.png']
 
 
-def load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
-                cache: bool = True, cache_location: str = CACHE_LOCATION) -> \
-                Union[Tuple[str, numpy.ndarray], Mapping[str, numpy.ndarray]]:
+def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
+                 cache: bool = True, cache_location: str = CACHE_LOCATION) -> \
+                 Union[Tuple[str, numpy.ndarray], Mapping[str, numpy.ndarray]]:
     """
     Loads in the image(s) from the given path.
 
@@ -66,6 +66,7 @@ def load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
                     check_and_add(path, filename)
     elif os.path.isfile(path):
         ext_idx = path.rindex('.')
+        print(path)
         if path[ext_idx+1] not in IMG_EXTs:
             print('Warning: file being explicitly loaded does not have .jpg '
                   'extension. Make sure this is actually an image file.')
@@ -91,8 +92,12 @@ def add_cache(name: str, encoding: numpy.ndarray,
         f.write(encoding.tobytes())
 
 
-def check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
-    ordered_map = list(mappings.items())
+def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
+    try:
+        ordered_map = list(mappings.items())
+    except AttributeError as exc:
+        raise ValueError('Invalid parameter \'mapping\', expected a Mapping '
+                         f'type object. Got \'{mappings}\' instead.') from exc
     known_encodings = map(lambda x: x[1], ordered_map)
     unknown_face_locations = face_recognition.face_locations(img)
     unknown_face_encodings = face_recognition.face_encodings(
