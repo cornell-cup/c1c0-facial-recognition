@@ -3,72 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AditiVishwanath.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AlisonDuan.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AlyssaJarvis.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AnantShyam.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AngelaChao.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AngelaZou.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AnneLiu.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AnthonyCuturrufo.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AparajitoSaha.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/ArianaHaghighi.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/AshleyPaton.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/BahaaKotb.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/BenjaminYam.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/BrandonMan.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/ChristopherDe Jesus.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/CindyZhang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/CorbinStickley.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/DakotaThomas.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/DilanLakhani.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/DoanhTran.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/DuyHoang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/ElizabethGarner.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/EmilyZhang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/EstherWang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/EvaZhang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/IrisLi.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JacobTamor.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JanisSong.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JerryGuo.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JonasFunk.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JunyuWang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/JustinGreen.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/KassandraNguyen.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/KatherineZhou.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/KeeganLewick.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/KimmyLin.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/KyleInfantino.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/LauraKramer.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/LaurenCali.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/LennoxCao.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/LiamKain.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/Lin JingLiu.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/MaggieLiu.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/MargaretLo.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/NeilGidwani.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/PrithwishDan.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/RosieWildermuth.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/RubyMin.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SabrinaMorse.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SaharSami.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SanjanaNandi.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SanjitBasker.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SofiaConte.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/StefenPegels.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/SwathiParthibha.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/TeresaHuang.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/TiffanyGuo.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/TinaLi.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/TrentonLyke.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/VickyLe.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/YashrajSinha.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/people/ZoltanCsaki.jpeg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

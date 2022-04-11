@@ -9,7 +9,7 @@ LOCAL = None
 # LOCAL variables
 MAPPINGS: Optional[Mapping[str, np.ndarray]] = None
 PATH: Optional[str] = None
-# REMOTE (not LOCAL) variable
+# REMOTE (not LOCAL) variables
 IP: Optional[str] = None
 PORT: Optional[int] = None
 
@@ -27,8 +27,9 @@ SCALE_FACTOR = 0.25
 def set_local(filepath: str):
     global LOCAL, MAPPINGS, PATH
     LOCAL = True
-    PATH = filepath
-    MAPPINGS = local_load_images(filepath)
+    PATH = filepath if filepath is not None else PATH
+    MAPPINGS = local_load_images(filepath) if filepath is not None else \
+        MAPPINGS
 
 
 def set_remote(ip: Optional[str] = None, port: Optional[int] = None):
