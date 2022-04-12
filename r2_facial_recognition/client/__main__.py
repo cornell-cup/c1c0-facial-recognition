@@ -10,7 +10,7 @@ DEFAULT_PATH = 'resources/people'
 DEFAULT_LOCAL = False
 DEFAULT_CACHE = True
 DEFAULT_CACHE_LOCATION = '.cache'
-DEFAULT_IP = '192.168.1.5' # change to whatever the default should be
+DEFAULT_IP = '192.168.1.5'  # change to whatever the default should be
 DEFAULT_PORT = 8080  # 8080 HTTP non-privileged testing port. Use 80 for
 # privilege
 
@@ -41,7 +41,7 @@ api.CACHE_LOCATION = getattr(args, 'cache_location', DEFAULT_CACHE_LOCATION)
 api.PATH = getattr(args, 'path', DEFAULT_PATH)
 
 api.MAPPINGS = api.load_images()
-print(api.MAPPINGS)
 # Load image
-img = cv2.imread('resources/people/Christopher_De Jesus.jpeg')
-api.analyze_face(img)
+img = cv2.imread('kassy.jpg')
+img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
+print(api.analyze_face(img))

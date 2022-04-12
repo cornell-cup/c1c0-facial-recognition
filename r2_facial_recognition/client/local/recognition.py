@@ -8,7 +8,7 @@ import numpy
 import face_recognition
 
 CACHE_LOCATION = '.cache'
-IMG_EXTs = ['.jpg', '.jpeg', '.png']
+IMG_EXTs = ['jpg', 'jpeg', 'png']
 
 
 def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
@@ -38,15 +38,24 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
     mappings = {} if mappings is None else mappings
 
     def check_and_add(path_, file_):
-        filename_ = file_[:file_.rindex('.')]
+        try:
+            filename_ = file_[:file_.rindex('.')]
+        except ValueError as exc:
+            raise ValueError(f'file named {file_} does not contain a ".".') \
+                from exc
         if cache:
+            print('Using cache.')
             # Following EAFP idiom.
             try:
-                mappings[filename_] = get_cached(file_, cache_location)
-            except OSError:
+                mappings[filename_] = get_cached(filename_, cache_location)
+                print(f'Pulled mapping from {filename_}.')
+            except OSError as exc:
                 # DNE in cache
+                print(exc)
+                print('Couldn\'t find mapping, generating new one.')
                 encoding = face_recognition.face_encodings(
-                    face_recognition.load_image_file(os.path.join(path_, file_))
+                    face_recognition.load_image_file(os.path.join(path_,
+                                                                  file_))
                 )[0]
                 add_cache(filename_, encoding, cache_location)
                 mappings[filename_] = encoding
@@ -57,13 +66,21 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
             )[0]
 
     if os.path.isdir(path):
+        print(f'Recognized {path} as a directory.')
         for _, _, files in os.walk(path):
+            print(f'Walking through files in {path}.')
             for file in files:
+                print(f'Analyzing file: {file}.')
                 ext_idx = file.rindex('.')
-                if file[ext_idx+1] in IMG_EXTs:
+                ext = file[ext_idx+1:]
+                if ext in IMG_EXTs:
+                    print(f'Image extension matches: {ext}')
                     print(f'{file} was loaded in as a recognized face.')
-                    filename = file[:file.rindex('.')]
-                    check_and_add(path, filename)
+                    # filename = file[:file.rindex('.')]
+                    check_and_add(path, file)
+                else:
+                    print(f'Ignoring file: {file}, with extension: {ext} not '
+                          f'in {IMG_EXTs}')
     elif os.path.isfile(path):
         ext_idx = path.rindex('.')
         print(path)
@@ -80,13 +97,14 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
 
 
 def get_cached(name: str, cache_location: str = CACHE_LOCATION):
-    return numpy.load(os.path.join(cache_location, f'{name}.encoding'),
-                      allow_pickle=False)
+    with open(os.path.join(cache_location, f'{name}.encoding'), 'rb') as f:
+        return numpy.frombuffer(f.read())
 
 
 def add_cache(name: str, encoding: numpy.ndarray,
               cache_location: str = CACHE_LOCATION):
-    with open(os.path.join(cache_location, f'{name}.encoding'), 'rb+') as f:
+    os.makedirs(cache_location, exist_ok=True)
+    with open(os.path.join(cache_location, f'{name}.encoding'), 'wb+') as f:
         f.seek(0)
         f.truncate()
         f.write(encoding.tobytes())
@@ -98,7 +116,10 @@ def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
     except AttributeError as exc:
         raise ValueError('Invalid parameter \'mapping\', expected a Mapping '
                          f'type object. Got \'{mappings}\' instead.') from exc
-    known_encodings = map(lambda x: x[1], ordered_map)
+    known_encodings = list(map(lambda x: x[1], ordered_map))
+    if not known_encodings:
+        raise ValueError(f'No known encodings! known_encodings='
+                         f'{known_encodings}')
     unknown_face_locations = face_recognition.face_locations(img)
     unknown_face_encodings = face_recognition.face_encodings(
         img, unknown_face_locations)

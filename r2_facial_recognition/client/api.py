@@ -46,20 +46,21 @@ def analyze_face(img: np.ndarray):
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        local_check_faces(resized, MAPPINGS)
+        identities, unknown_faces = local_check_faces(resized, MAPPINGS)
+        return identities, unknown_faces
     else:
         # Wish I could send image directly over get since it is not changing
         # data on the server, but unfortunately not possible. Would have to
         # convert to Base64... maybe try it later and test speed later.
         # get(f'{IP}:{PORT}', params=())
-        post(f'{IP}:{PORT}/analyze_face', files=img.tobytes())
+        return post(f'{IP}:{PORT}/analyze_face', files=img.tobytes())
 
 
 def load_images():
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        local_load_images(PATH, MAPPINGS)
+        return local_load_images(PATH, MAPPINGS)
     else:
-        get(f'{IP}:{PORT}/load_images')
+        return get(f'{IP}:{PORT}/load_images')
 
