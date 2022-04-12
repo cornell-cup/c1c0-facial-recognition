@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/r2_facial_recognition/client/config.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/api_tests.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alyssa.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/alyssa2.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/test_headshots/Alyssa_Jarvis.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kassy.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/resources/test_headshots/Kassandra_Nguyen.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/taylor.jpeg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +21,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Unit Test" />
         <option value="Python Script" />
       </list>
     </option>
@@ -80,6 +87,9 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/resources/other_pics" />
+      <recent name="$PROJECT_DIR$/resources" />
+      <recent name="$PROJECT_DIR$/resources/test_headshots" />
       <recent name="$PROJECT_DIR$/r2_facial_recognition/client" />
       <recent name="$PROJECT_DIR$" />
     </key>
