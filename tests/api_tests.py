@@ -23,8 +23,11 @@ class APITests(unittest.TestCase):
 
     def test_local(self):
         api.set_local('../resources/people')
+        print('Images loaded.')
         for person, img in self.img_suite.items():
-            predicted, unknown = api.analyze_face(img)
+            print(f'Analyzing {person}')
+            predicted, face_locations = api.analyze_face(img)
+            print(f'{person} analyzed.')
             self.assertEqual(predicted[0], person)
 
 

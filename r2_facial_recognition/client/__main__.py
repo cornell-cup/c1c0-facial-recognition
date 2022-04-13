@@ -17,10 +17,10 @@ except ImportError:
 
 parser = ArgumentParser()
 # Add arguments
-parser.add_argument('-l', '--local',
-                    action=f'store_{str(not DEFAULT_LOCAL).lower()}')
+parser.add_argument('-l', '--local', action=f'store_true',
+                    default=DEFAULT_LOCAL)
 parser.add_argument('-nc', '--no-cache',
-                    action=f'store_{str(not DEFAULT_CACHE).lower()}')
+                    action=f'store_false', default=DEFAULT_CACHE)
 # Stores
 parser.add_argument('-p', '--path', action='store', default=DEFAULT_PATH)
 parser.add_argument('-cl', '--cache-location', action='store',
@@ -39,6 +39,8 @@ input_ = getattr(args, 'input')
 # Normally, just call `api.set_[local/remote](req. params)`
 # We do this here to allow full configurability.
 api.LOCAL = getattr(args, 'local', DEFAULT_LOCAL)
+print(api.LOCAL)
+print(args)
 api.CACHE = getattr(args, 'no_cache', DEFAULT_CACHE)
 api.CACHE_LOCATION = getattr(args, 'cache_location', DEFAULT_CACHE_LOCATION)
 api.PATH = getattr(args, 'path', DEFAULT_PATH)
