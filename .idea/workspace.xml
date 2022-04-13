@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/api_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/api_tests.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

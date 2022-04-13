@@ -19,13 +19,13 @@ except ImportError:
     )
 
 
-CACHE_LOCATION = DEFAULT_CACHE_LOCATION
 ENCODING_MODEL = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL = DEFAULT_NN_MODEL
 
 
 def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
-                 cache: bool = True, cache_location: str = CACHE_LOCATION) -> \
+                 cache: bool = True,
+                 cache_location: str = DEFAULT_CACHE_LOCATION) -> \
                  Union[Tuple[str, numpy.ndarray], Mapping[str, numpy.ndarray]]:
     """
     Loads in the image(s) from the given path.
@@ -111,13 +111,13 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
     return mappings
 
 
-def get_cached(name: str, cache_location: str = CACHE_LOCATION):
+def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION):
     with open(os.path.join(cache_location, f'{name}.encoding'), 'rb') as f:
         return numpy.frombuffer(f.read())
 
 
 def add_cache(name: str, encoding: numpy.ndarray,
-              cache_location: str = CACHE_LOCATION):
+              cache_location: str = DEFAULT_CACHE_LOCATION):
     os.makedirs(cache_location, exist_ok=True)
     with open(os.path.join(cache_location, f'{name}.encoding'), 'wb+') as f:
         f.seek(0)
