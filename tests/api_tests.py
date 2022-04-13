@@ -3,11 +3,11 @@ import os
 import cv2
 import sys
 
-
 sys.path.insert(0, '..')
 
-
 from r2_facial_recognition.client import api
+
+api.CACHE_LOCATION = '../.cache'
 
 
 class APITests(unittest.TestCase):

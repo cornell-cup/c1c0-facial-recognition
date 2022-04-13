@@ -7,8 +7,21 @@ from typing import Mapping, Tuple, Union
 import numpy
 import face_recognition
 
-CACHE_LOCATION = '.cache'
-IMG_EXTs = ['jpg', 'jpeg', 'png']
+try:
+    from ..config import (
+        DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
+        IMG_EXTs
+    )
+except ImportError:
+    from r2_facial_recognition.client.config import (
+        DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
+        IMG_EXTs
+    )
+
+
+CACHE_LOCATION = DEFAULT_CACHE_LOCATION
+ENCODING_MODEL = DEFAULT_ENCODING_MODEL
+FACE_DETECT_MODEL = DEFAULT_NN_MODEL
 
 
 def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
@@ -55,14 +68,16 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
                 print('Couldn\'t find mapping, generating new one.')
                 encoding = face_recognition.face_encodings(
                     face_recognition.load_image_file(os.path.join(path_,
-                                                                  file_))
+                                                                  file_)),
+                    model=ENCODING_MODEL
                 )[0]
                 add_cache(filename_, encoding, cache_location)
                 mappings[filename_] = encoding
 
         else:
             mappings[filename_] = face_recognition.face_encodings(
-                face_recognition.load_image_file(os.path.join(path_, file_))
+                face_recognition.load_image_file(os.path.join(path_, file_)),
+                model=ENCODING_MODEL
             )[0]
 
     if os.path.isdir(path):
@@ -120,13 +135,15 @@ def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
     if not known_encodings:
         raise ValueError(f'No known encodings! known_encodings='
                          f'{known_encodings}')
-    unknown_face_locations = face_recognition.face_locations(img)
+    unknown_face_locations = face_recognition.face_locations(
+        img, model=FACE_DETECT_MODEL)
     unknown_face_encodings = face_recognition.face_encodings(
-        img, unknown_face_locations)
+        img, unknown_face_locations, model=ENCODING_MODEL)
 
     identities = []
     for unknown_face in unknown_face_encodings:
-        matches = face_recognition.compare_faces(known_encodings, unknown_face)
+        matches = face_recognition.compare_faces(known_encodings, unknown_face,
+                                                 )
         face_distances = face_recognition.face_distance(known_encodings,
                                                         unknown_face)
         closest_idx = numpy.argmin(face_distances)
