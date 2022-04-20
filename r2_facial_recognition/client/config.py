@@ -10,3 +10,5 @@ DEFAULT_ENCODING_MODEL = 'large'
 DEFAULT_NN_MODEL = 'hog'
 
 IMG_EXTs = ['jpg', 'jpeg', 'png']
+SEND_IMG = False
+SEND_ENCODING = True

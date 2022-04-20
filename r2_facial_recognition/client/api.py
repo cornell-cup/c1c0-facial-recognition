@@ -18,7 +18,6 @@ except ImportError:
 LOCAL = DEFAULT_LOCAL
 CACHE = DEFAULT_CACHE
 CACHE_LOCATION = DEFAULT_CACHE_LOCATION
-IMAGES_LOADED = False
 # LOCAL variables
 MAPPINGS: Optional[Mapping[str, np.ndarray]] = None
 PATH: Optional[str] = DEFAULT_PATH
@@ -57,31 +56,27 @@ def analyze_face(img: np.ndarray):
     if LOCAL is None:
         raise RuntimeError('Mode unset, please call set_local or set_remote')
     elif LOCAL:
-        identities, unknown_faces = local_check_faces(resized, MAPPINGS)
-        return identities, unknown_faces
+        return local_check_faces(resized, MAPPINGS)
     else:
         # Wish I could send image directly over get since it is not changing
         # data on the server, but unfortunately not possible. Would have to
-        # convert to Base64... maybe try it later and test speed later.
+        # convert to Base64... maybe try and test speed later.
         # get(f'{IP}:{PORT}', params=())
         return post(f'{IP}:{PORT}/analyze_face', files=img.tobytes(),
                     data={'cache': CACHE, 'cache_location': CACHE_LOCATION})
 
 
 def load_images():
-    global IMAGES_LOADED
-    failed = False
-    try:
-        if LOCAL is None:
-            failed = True
-            raise RuntimeError('Mode unset, please call set_local or '
-                               'set_remote')
-        elif LOCAL:
-            return local_load_images(PATH, MAPPINGS, cache=CACHE,
-                                     cache_location=CACHE_LOCATION)
-        else:
-            return get(f'{IP}:{PORT}/load_images',
-                       params={'cache': CACHE, 'cache_location': CACHE_LOCATION
-                               })
-    finally:
-        IMAGES_LOADED = IMAGES_LOADED if failed else True
+    if LOCAL is None:
+        raise RuntimeError('Mode unset, please call set_local or '
+                           'set_remote')
+    elif LOCAL:
+        return local_load_images(PATH, MAPPINGS, cache=CACHE,
+                                 cache_location=CACHE_LOCATION)
+    else:
+        # Not necessary due to server startup magic. see
+        #  r2_facial_recognition_server
+        # return get(f'{IP}:{PORT}/load_images',
+        #            params={'cache': CACHE, 'cache_location': CACHE_LOCATION
+        #                    })
+        return True

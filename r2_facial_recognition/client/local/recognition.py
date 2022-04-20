@@ -3,7 +3,7 @@ Heavily drawn from https://pypi.org/project/face-recognition/
 """
 import os
 from typing import Mapping, Tuple, Union
-from pprint import pprint
+# from pprint import pprint
 
 import numpy
 import face_recognition
@@ -140,9 +140,9 @@ def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
         img, model=FACE_DETECT_MODEL)
     unknown_face_encodings = face_recognition.face_encodings(
         img, unknown_face_locations, model=ENCODING_MODEL)
-    landmarks = face_recognition.face_landmarks(img, unknown_face_locations,
-                                                model=ENCODING_MODEL)
-    pprint(landmarks)
+    # landmarks = face_recognition.face_landmarks(img, unknown_face_locations,
+    #                                             model=ENCODING_MODEL)
+    # pprint(landmarks)
 
     identities = []
     for unknown_face in unknown_face_encodings:
