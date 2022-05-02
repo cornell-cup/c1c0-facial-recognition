@@ -2,8 +2,7 @@
 Heavily drawn from https://pypi.org/project/face-recognition/
 """
 import os
-from typing import Mapping, Tuple, Union
-# from pprint import pprint
+from typing import Mapping, Tuple, List
 
 import numpy
 import face_recognition
@@ -27,7 +26,7 @@ FACE_DETECT_MODEL = DEFAULT_NN_MODEL
 def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
                  cache: bool = True,
                  cache_location: str = DEFAULT_CACHE_LOCATION) -> \
-                 Union[Tuple[str, numpy.ndarray], Mapping[str, numpy.ndarray]]:
+                 Mapping[str, numpy.ndarray]:
     """
     Loads in the image(s) from the given path.
 
@@ -62,11 +61,8 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
             # Following EAFP idiom.
             try:
                 mappings[filename_] = get_cached(filename_, cache_location)
-                print(f'Pulled mapping from {filename_}.')
             except OSError as exc:
                 # DNE in cache
-                print(exc)
-                print('Couldn\'t find mapping, generating new one.')
                 encoding = face_recognition.face_encodings(
                     face_recognition.load_image_file(os.path.join(path_,
                                                                   file_)),
@@ -126,7 +122,8 @@ def add_cache(name: str, encoding: numpy.ndarray,
         f.write(encoding.tobytes())
 
 
-def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
+def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]) ->\
+        List[Tuple[str, Tuple[int, int, int, int]]]:
     try:
         ordered_map = list(mappings.items())
     except AttributeError as exc:
@@ -157,4 +154,4 @@ def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]):
         print(f'Face was {distance} away from {name}.')
 
         identities.append(name)
-    return identities, unknown_face_locations
+    return list(zip(identities, unknown_face_locations))

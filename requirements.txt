@@ -1,7 +1,7 @@
 requests
-picamera
 opencv-python
 numpy
 face_recognition
 Pillow
 num2words
+gamlogger
