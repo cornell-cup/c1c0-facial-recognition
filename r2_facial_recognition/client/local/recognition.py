@@ -1,11 +1,14 @@
 """
 Heavily drawn from https://pypi.org/project/face-recognition/
+
+This module defines all the functions necessary to locally perform a
+  facial recognition task.
 """
 import os
 from typing import Mapping, Tuple, List
 
-import numpy
 import face_recognition
+import numpy as np
 
 try:
     from ..config import (
@@ -23,10 +26,10 @@ ENCODING_MODEL = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL = DEFAULT_NN_MODEL
 
 
-def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
+def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
                  cache: bool = True,
                  cache_location: str = DEFAULT_CACHE_LOCATION) -> \
-                 Mapping[str, numpy.ndarray]:
+                 Mapping[str, np.ndarray]:
     """
     Loads in the image(s) from the given path.
 
@@ -44,24 +47,36 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
 
     RETURNS
     -------
-        A Mapping of names to encodings if path is a directory, a single
-        Tuple of name & encoding if the path is a file, and raises an exception
-        otherwise.
+    - Mapping[str, np.ndarray]
+        A Mapping of names to encodings. The encoding is a numpy array
+        representation of an individual face.
     """
     mappings = {} if mappings is None else mappings
 
-    def check_and_add(path_, file_):
+    def check_and_add(path_: str, file_: str) -> None:
+        """
+        Helper function that checks if the encoding is already generated, and
+        if so adds it to the mappings. Otherwise, it will generate an encoding
+        for the face, and store it in the mappings. File names are important
+        for it to distinguish which user is which.
+
+        PARAMETERS
+        ----------
+        path_
+            The path as a str to the directory where the file is located.
+        file_
+            The filename.
+        """
         try:
             filename_ = file_[:file_.rindex('.')]
         except ValueError as exc:
             raise ValueError(f'file named {file_} does not contain a ".".') \
                 from exc
         if cache:
-            print('Using cache.')
             # Following EAFP idiom.
             try:
                 mappings[filename_] = get_cached(filename_, cache_location)
-            except OSError as exc:
+            except OSError:
                 # DNE in cache
                 encoding = face_recognition.face_encodings(
                     face_recognition.load_image_file(os.path.join(path_,
@@ -78,16 +93,11 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
             )[0]
 
     if os.path.isdir(path):
-        print(f'Recognized {path} as a directory.')
         for _, _, files in os.walk(path):
-            print(f'Walking through files in {path}.')
             for file in files:
-                print(f'Analyzing file: {file}.')
                 ext_idx = file.rindex('.')
                 ext = file[ext_idx+1:]
                 if ext in IMG_EXTs:
-                    print(f'Image extension matches: {ext}')
-                    print(f'{file} was loaded in as a recognized face.')
                     # filename = file[:file.rindex('.')]
                     check_and_add(path, file)
                 else:
@@ -95,7 +105,6 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
                           f'in {IMG_EXTs}')
     elif os.path.isfile(path):
         ext_idx = path.rindex('.')
-        print(path)
         if path[ext_idx+1] not in IMG_EXTs:
             print('Warning: file being explicitly loaded does not have .jpg '
                   'extension. Make sure this is actually an image file.')
@@ -108,13 +117,41 @@ def _load_images(path: str, mappings: Mapping[str, numpy.ndarray] = None,
     return mappings
 
 
-def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION):
+def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
+        np.ndarray:
+    """
+    Gets the cached encoding from cache_location.
+
+    PARAMETERS
+    ----------
+    name
+        The name of the person whose encoding is being gotten.
+    cache_location
+        The path as a str of the folder where the cached encodings are located.
+
+    RETURNS
+    -------
+    np.ndarray
+        The encoding as a np.ndarray.
+    """
     with open(os.path.join(cache_location, f'{name}.encoding'), 'rb') as f:
-        return numpy.frombuffer(f.read())
+        return np.frombuffer(f.read())
 
 
-def add_cache(name: str, encoding: numpy.ndarray,
-              cache_location: str = DEFAULT_CACHE_LOCATION):
+def add_cache(name: str, encoding: np.ndarray,
+              cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
+    """
+    Adds the [encoding] to the [cache_location] directory under [name].
+
+    PARAMETERS
+    ----------
+    name
+        The name of the person [encoding] is for.
+    encoding
+        The encoding for the person, [name].
+    cache_location
+        An optional argument of the directory of where the cache is located.
+    """
     os.makedirs(cache_location, exist_ok=True)
     with open(os.path.join(cache_location, f'{name}.encoding'), 'wb+') as f:
         f.seek(0)
@@ -122,8 +159,31 @@ def add_cache(name: str, encoding: numpy.ndarray,
         f.write(encoding.tobytes())
 
 
-def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]) ->\
+def _check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) ->\
         List[Tuple[str, Tuple[int, int, int, int]]]:
+    """
+    Runs the facial recognition algorithm on [img]. All possible responses are
+    keys in [mappings].
+
+    PARAMETERS
+    ----------
+    img
+        The img to search for faces in.
+    mappings
+        The mappings of known people to known facial encodings.
+        See _load_images for more info on the mappings.
+
+    RETURNS
+    -------
+    -
+        A list of name-image location pairs. The location is in
+        (top, right, bottom, left) format.
+        |
+        |
+        Note: It is returned as a list as multiple Unknown values may be
+        accrued. Any faces in the image that are recognized as a face but is
+        not a known face will have the location but be marked as Unknown.
+    """
     try:
         ordered_map = list(mappings.items())
     except AttributeError as exc:
@@ -147,11 +207,10 @@ def _check_faces(img: numpy.ndarray, mappings: Mapping[str, numpy.ndarray]) ->\
                                                  )
         face_distances = face_recognition.face_distance(known_encodings,
                                                         unknown_face)
-        closest_idx = numpy.argmin(face_distances)
-        distance = face_distances[closest_idx]
+        closest_idx = np.argmin(face_distances)
+        # distance = face_distances[closest_idx]
         name = ordered_map[closest_idx][0] if matches[closest_idx] else \
             'Unknown'
-        print(f'Face was {distance} away from {name}.')
 
         identities.append(name)
     return list(zip(identities, unknown_face_locations))

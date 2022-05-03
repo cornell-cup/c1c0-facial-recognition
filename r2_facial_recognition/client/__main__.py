@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-import cv2
 
 try:
     from .config import (
@@ -7,12 +6,14 @@ try:
         DEFAULT_PORT, DEFAULT_HOST, DEFAULT_SCALE_FACTOR, DEFAULT_DEVICE
     )
     from .client import Client
+    from .camera import Camera
 except ImportError:
     from config import (
         DEFAULT_PATH, DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION,
         DEFAULT_PORT, DEFAULT_HOST, DEFAULT_SCALE_FACTOR, DEFAULT_DEVICE
     )
     from client import Client
+    from camera import Camera
 
 
 parser = ArgumentParser()
@@ -30,6 +31,7 @@ parser.add_argument('-P', '--port', action='store', type=int,
                     default=DEFAULT_PORT)
 parser.add_argument('-in', '--input', action='store')
 parser.add_argument('-d', '--device', action='store', default=DEFAULT_DEVICE)
+parser.add_argument('-D', '--display', action='store_true', default=False)
 # Grab the namespace
 args, _ = parser.parse_known_args()
 
@@ -46,11 +48,17 @@ PATH = getattr(args, 'path', DEFAULT_PATH)
 HOST = getattr(args, 'host', DEFAULT_HOST)
 PORT = getattr(args, 'port', DEFAULT_PORT)
 DEVICE = getattr(args, 'device', DEFAULT_DEVICE)
+DISPLAY = getattr(args, 'display', False)
+
+if DEVICE == 0:
+    DEVICE = Camera.find_camera()
+
+print(DEVICE)
 
 client = Client(local=LOCAL, path=PATH, cache=CACHE,
                 cache_location=CACHE_LOCATION, ip=HOST, port=PORT, dev=DEVICE)
 
 # Do a thing
 # people, face_locations = client.interpret_task('recognize_face')
-people, face_locations = client.recognize_face()
+matches = client.recognize_faces(disp=DISPLAY)
 

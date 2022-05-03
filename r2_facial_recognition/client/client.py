@@ -21,11 +21,28 @@ except ImportError:
 
 class Client:
 
-    def recognize_face(self, show_face: bool = False, *_, **__):
-        img = self.camera.get_frame()
-        # if show_face:
-        #     cv2.putText()
-        return self.analyze_face(img)
+    def recognize_faces(self, disp: bool = False, best_of_n: int = 3, *_, **__):
+        matching_attempts = []
+        img = None
+        for i in range(best_of_n):
+            img = self.camera.get_frame()
+            result = self.analyze_face(img)
+            matching_attempts.extend(result['matches'])
+        matches = {}
+        unknowns = 0
+        for name, loc in matching_attempts:
+            if name == 'Unknown':
+                name = f'{name}{unknowns}'
+                unknowns += 1
+            matches[name] = loc
+
+        if disp:
+            for name, (top, right, bottom, left) in matches.items():
+                cv2.putText(img, name, (left - 20, bottom + 20),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.imshow('Detected faces', img)
+            cv2.waitKey(0)
+        return matches
 
     def take_attendance(self, group, *_, **__):
         pass
@@ -40,7 +57,7 @@ class Client:
         # api.load_images()
         self.camera = Camera(dev)
         self._task_map = {
-            'recognize_face': self.recognize_face,
+            'recognize_face': self.recognize_faces,
             'take_attendance': self.take_attendance
         }
         self.local = local
@@ -112,15 +129,15 @@ class Client:
             # Would have to convert to Base64... maybe try and test speed
             # later.
             # get(f'{IP}:{PORT}', params=())
-            print(type(self.cache))
-            print(type(self.cache_location))
-            return json.loads(
-                post(f'{self.ip}:{self.port}/face_recognition/detect',
-                     files={'image': img.tobytes()},
-                     data={
-                         'cache': self.cache,
-                         'cache_location': self.cache_location
-                     }).content.decode(TEXT_ENCODING)
+            resp = post(f'{self.get_conn_str()}/face_recognition/detect',
+                        files={'image': img.tobytes()},
+                        data={
+                            'cache': self.cache,
+                            'cache_location': self.cache_location,
+                            'shape': str(img.shape)
+                        })
+            resp.raise_for_status()
+            return json.loads(resp.content.decode(TEXT_ENCODING)
             )
 
     def load_images(self):
