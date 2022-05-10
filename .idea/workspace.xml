@@ -3,11 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e09f616e-5e4d-475f-b05f-fdb1263500b0" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/local/recognition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/r2_facial_recognition/client/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/r2_facial_recognition/client/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/api_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/api_tests.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

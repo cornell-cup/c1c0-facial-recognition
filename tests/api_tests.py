@@ -5,9 +5,13 @@ import sys
 
 sys.path.insert(0, '..')
 
-from r2_facial_recognition.client import api
+from r2_facial_recognition.client import Client
 
-api.CACHE_LOCATION = '../.cache'
+CACHE_LOCATION = '../.cache'
+PATH = '../resources/people'
+
+IP = '127.0.0.1'
+PORT = 5000
 
 
 class APITests(unittest.TestCase):
@@ -20,16 +24,29 @@ class APITests(unittest.TestCase):
             file[:file.rindex('.')]: cv2.imread(os.path.join(path, file))
             for file in files
         }
+        self.client = Client(path=PATH, ip=IP, port=PORT,
+                             cache_location=CACHE_LOCATION)
+        print(f'Local mode is set to {self.client.is_local()}')
 
     def test_local(self):
-        api.set_local('../resources/people')
-        print('Images loaded.')
+        self.client.set_local(filepath=PATH, force=True)
         for person, img in self.img_suite.items():
             print(f'Analyzing {person}')
-            predicted, face_locations = api.analyze_face(img)
+            predictions = self.client.analyze_faces(img)
+            predicted = predictions['matches']
             print(f'{person} analyzed.')
-            self.assertEqual(predicted[0], person)
+            name, _ = predicted[0]
+            self.assertEqual(name, person)
 
+    def test_remote(self):
+        self.client.set_remote(ip=IP, port=PORT, force=True)
+        for person, img in self.img_suite.items():
+            print(f'Analyzing {person}')
+            predictions = self.client.analyze_faces(img)
+            predicted = predictions['matches']
+            print(f'{person} analyzed.')
+            name, _ = predicted[0]
+            self.assertEqual(name, person)
 
 if __name__ == '__main__':
     unittest.main()

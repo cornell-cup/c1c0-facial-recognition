@@ -13,7 +13,7 @@ DEFAULT_SCALE_FACTOR = 0.25
 DEFAULT_ENCODING_MODEL = 'large'
 DEFAULT_NN_MODEL = 'hog'
 
-DEFAULT_TIMEOUT = 2
+DEFAULT_TIMEOUT = 5
 DEFAULT_CHECKIN_RATE = 10  # Check-in every 10 seconds
 
 IMG_EXTs = ['jpg', 'jpeg', 'png']

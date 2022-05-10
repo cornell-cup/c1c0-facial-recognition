@@ -2,6 +2,8 @@ from typing import Optional, List, Mapping, Tuple
 import numpy as np
 import cv2
 from time import time
+
+from gamlogger import get_default_logger
 from requests import get, post, HTTPError
 import json
 
@@ -18,15 +20,17 @@ except ImportError:
     from camera import Camera
     from local import local_load_images, local_check_faces
 
+logger = get_default_logger(__name__)
+
 
 class Client:
-
-    def recognize_faces(self, disp: bool = False, best_of_n: int = 3, *_, **__):
+    def recognize_faces(self, disp: bool = False, best_of_n: int = 3,
+                        *_, **__):
         matching_attempts = []
         img = None
         for i in range(best_of_n):
             img = self.camera.get_frame()
-            result = self.analyze_face(img)
+            result = self.analyze_faces(img)
             matching_attempts.extend(result['matches'])
         matches = {}
         unknowns = 0
@@ -60,27 +64,28 @@ class Client:
             'recognize_face': self.recognize_faces,
             'take_attendance': self.take_attendance
         }
-        self.local = local
-        self.path = path
-        self.cache = cache
+        self._local = local
+        self._path = path
+        self.use_cache = cache
         self.cache_location = cache_location
-        self.mappings = mappings
-        self.ip = ip
-        self.port = port
+        self._mappings = mappings if mappings is not None else {}
+        self._ip = ip
+        self._port = port
         self.scale_factor = DEFAULT_SCALE_FACTOR if scale_factor is None else \
             scale_factor
         self.timeout = timeout
-        self.last_result = (False, 0)
-        self.check_in_rate = check_in_rate
+        self._last_result = (False, 0)
+        self._check_in_rate = check_in_rate
+        self.load_images()
 
     def get_conn_str(self):
-        return f'http://{self.ip}:{self.port}/'
+        return f'http://{self._ip}:{self._port}/'
 
     def is_local(self):
-        if self.local is not None:
-            return self.local
-        last_result, last_time = self.last_result
-        if time() - last_time < self.check_in_rate:
+        if self._local is not None:
+            return self._local
+        last_result, last_time = self._last_result
+        if time() - last_time < self._check_in_rate:
             return last_result
         print(self.get_conn_str())
         # Need to update check-in algo
@@ -90,37 +95,37 @@ class Client:
             resp.raise_for_status()
         except HTTPError:
             result = False
-        self.last_result = (result, time())
+        self._last_result = (result, time())
         return result
 
     def interpret_task(self, task):
         return self._task_map[task]
 
     def set_local(self, filepath: str, force: bool = True):
-        self.path = self.path if filepath is None else filepath
-        self.mappings = self.mappings if filepath is None else \
+        self._path = self._path if filepath is None else filepath
+        self._mappings = self._mappings if filepath is None else \
             local_load_images(filepath)
         if force:
-            self.local = True
+            self._local = True
 
     def set_remote(self, ip: Optional[str] = None, port: Optional[int] = None,
                    force: bool = True):
-        self.ip = self.ip if ip is None else ip
-        self.port = self.port if port is None else port
+        self._ip = self._ip if ip is None else ip
+        self._port = self._port if port is None else port
         if force:
-            self.local = False
+            self._local = False
 
     def set_auto(self):
-        self.local = None
+        self._local = None
 
-    def analyze_face(self, img: np.ndarray) -> \
+    def analyze_faces(self, img: np.ndarray) -> \
             Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]:
         resized = cv2.resize(img, (0, 0), fx=self.scale_factor,
                              fy=self.scale_factor)
 
         if self.is_local():
             return {
-                'matches': local_check_faces(resized, self.mappings),
+                'matches': local_check_faces(resized, self._mappings),
                 'face_locations': []
             }
         else:
@@ -132,19 +137,21 @@ class Client:
             resp = post(f'{self.get_conn_str()}/face_recognition/detect',
                         files={'image': img.tobytes()},
                         data={
-                            'cache': self.cache,
+                            'cache': self.use_cache,
                             'cache_location': self.cache_location,
                             'shape': str(img.shape)
                         })
             resp.raise_for_status()
-            return json.loads(resp.content.decode(TEXT_ENCODING)
-            )
+            return json.loads(resp.content.decode(TEXT_ENCODING))
 
     def load_images(self):
+        logger.info('Loading images')
         if self.is_local():
-            return local_load_images(self.path, self.mappings,
-                                     cache=self.cache,
-                                     cache_location=self.cache_location)
+            result = local_load_images(self._path, self._mappings,
+                                       cache=self.use_cache,
+                                       cache_location=self.cache_location)
+            logger.info('Images loaded.')
+            return result
         else:
             # Not necessary due to server startup magic. see
             #  r2_facial_recognition_server
