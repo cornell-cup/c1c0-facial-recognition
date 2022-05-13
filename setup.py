@@ -164,11 +164,11 @@ def _setup(meta_):
     print('author=', author)
     print('author_email=', author_email)
     print('url=', url)
-    # version = get_version(meta_['version'])
-    # print('version=', version)
+    version = get_version(meta_['version'])
+    print('version=', version)
     setup(
         name=name,
-        version='0.8.0',
+        version=version,
         author=author,
         author_email=author_email,
         url=url,
@@ -179,6 +179,7 @@ def _setup(meta_):
         license='',
         long_description_content_type=meta_['long_description_content_type'],
     )
+
 
 if __name__ == '__main__':
     _setup(meta)

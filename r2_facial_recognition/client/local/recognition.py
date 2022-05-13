@@ -10,16 +10,10 @@ from typing import Mapping, Tuple, List
 import face_recognition
 import numpy as np
 
-try:
-    from ..config import (
-        DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
-        IMG_EXTs
-    )
-except ImportError:
-    from r2_facial_recognition.client.config import (
-        DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
-        IMG_EXTs
-    )
+from ..config import (
+    DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
+    IMG_EXTs
+)
 
 
 ENCODING_MODEL = DEFAULT_ENCODING_MODEL
@@ -31,7 +25,7 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
                  cache_location: str = DEFAULT_CACHE_LOCATION) -> \
                  Mapping[str, np.ndarray]:
     """
-    Loads in the image(s) from the given path.
+    Loads in the image(s) from the given `path`.
 
     PARAMETERS
     ----------
@@ -42,8 +36,8 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
     cache
         Whether to cache the files as they are loaded.
     cache_location
-        The directory of the cache to check, default specified by
-        CACHE_LOCATION
+        The directory of the `cache` to check, default specified by
+        `CACHE_LOCATION`
 
     RETURNS
     -------
@@ -128,6 +122,12 @@ def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
         The name of the person whose encoding is being gotten.
     cache_location
         The path as a str of the folder where the cached encodings are located.
+
+    RAISES
+    ------
+    OSError
+        Usually raised when the file does not exist or is unable to be
+        accessed.
 
     RETURNS
     -------

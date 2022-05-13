@@ -21,3 +21,5 @@ SEND_IMG = False
 SEND_ENCODING = True
 
 TEXT_ENCODING = 'utf-8'
+
+del os

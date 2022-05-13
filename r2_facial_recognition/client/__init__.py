@@ -1,6 +1,5 @@
-__all__ = ['Client']
+__all__ = ['Client', 'config', 'camera']
 
-try:
-    from .client import Client
-except ImportError:
-    from client import Client
+from .client import Client
+from . import config
+from . import camera
