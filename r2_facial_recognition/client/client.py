@@ -35,7 +35,7 @@ class Client:
         matches = {}
         unknowns = 0
         for name, loc in matching_attempts:
-            if name == 'Unknown_Person':
+            if name == 'Unknown':
                 name = f'{name}{unknowns}'
                 unknowns += 1
             matches[name] = loc

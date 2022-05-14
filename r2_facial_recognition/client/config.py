@@ -5,7 +5,7 @@ DEFAULT_LOCAL = os.getenv('DEFAULT_LOCAL', None)
 DEFAULT_CACHE = os.getenv('DEFAULT_LOCAL', True)
 DEFAULT_CACHE_LOCATION = os.getenv('DEFAULT_CACHE_LOCATION', '.cache')
 DEFAULT_HOST = os.getenv('DEFAULT_HOST', 'localhost')
-DEFAULT_DEVICE = int(os.getenv('DEFAULT_DEVICE', 0))
+DEFAULT_DEVICE = int(os.getenv('DEFAULT_DEVICE', -1))
 # ^ change to whatever the default should be
 DEFAULT_PORT = 8080  # 8080 HTTP non-privileged testing port. Use 80 for
 # privilege
