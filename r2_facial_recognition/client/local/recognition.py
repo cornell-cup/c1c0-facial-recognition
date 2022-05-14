@@ -15,6 +15,10 @@ from ..config import (
     IMG_EXTs
 )
 
+from gamlogger import get_default_logger
+
+logger = get_default_logger(__name__)
+
 
 ENCODING_MODEL = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL = DEFAULT_NN_MODEL
@@ -45,6 +49,7 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
         A Mapping of names to encodings. The encoding is a numpy array
         representation of an individual face.
     """
+    logger.info('Load images called.')
     mappings = {} if mappings is None else mappings
 
     def check_and_add(path_: str, file_: str) -> None:

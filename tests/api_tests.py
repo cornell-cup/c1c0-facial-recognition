@@ -31,22 +31,23 @@ class APITests(unittest.TestCase):
     def test_local(self):
         self.client.set_local(filepath=PATH, force=True)
         for person, img in self.img_suite.items():
-            print(f'Analyzing {person}')
+            print(f'Locally analyzing {person}.')
             predictions = self.client.analyze_faces(img)
             predicted = predictions['matches']
-            print(f'{person} analyzed.')
+            print(f'{person} locally analyzed.')
             name, _ = predicted[0]
             self.assertEqual(name, person)
 
     def test_remote(self):
         self.client.set_remote(ip=IP, port=PORT, force=True)
         for person, img in self.img_suite.items():
-            print(f'Analyzing {person}')
+            print(f'Remotely analyzing {person}.')
             predictions = self.client.analyze_faces(img)
             predicted = predictions['matches']
-            print(f'{person} analyzed.')
+            print(f'{person} remotely analyzed.')
             name, _ = predicted[0]
             self.assertEqual(name, person)
+
 
 if __name__ == '__main__':
     unittest.main()
