@@ -87,11 +87,10 @@ class Client:
         last_result, last_time = self._last_result
         if time() - last_time < self._check_in_rate:
             return last_result
-        print(self.get_conn_str())
         # Need to update check-in algo
-        resp = get(self.get_conn_str(), timeout=self.timeout)
         result = True
         try:
+            resp = get(self.get_conn_str(), timeout=self.timeout)
             resp.raise_for_status()
         except HTTPError:
             result = False
