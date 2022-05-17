@@ -4,22 +4,14 @@ import cv2
 from time import time
 
 from gamlogger import get_default_logger
-from requests import get, post, HTTPError
+from requests import get, post, HTTPError, ConnectionError
 import json
 
-try:
-    from .config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
-        DEFAULT_PATH, DEFAULT_SCALE_FACTOR, DEFAULT_HOST, DEFAULT_PORT, \
-        DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING
-    from .camera import Camera
-    from .local import local_load_images, local_check_faces
-except ImportError:
-    from config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
-        DEFAULT_PATH, DEFAULT_SCALE_FACTOR, DEFAULT_HOST, DEFAULT_PORT, \
-        DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING
-    from camera import Camera
-    from local import local_load_images, local_check_faces
-
+from .config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
+    DEFAULT_PATH, DEFAULT_SCALE_FACTOR, DEFAULT_HOST, DEFAULT_PORT, \
+    DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING
+from .camera import Camera
+from .local import local_load_images, local_check_faces
 logger = get_default_logger(__name__)
 
 
@@ -92,7 +84,7 @@ class Client:
         try:
             resp = get(self.get_conn_str(), timeout=self.timeout)
             resp.raise_for_status()
-        except HTTPError:
+        except ConnectionError:
             result = False
         self._last_result = (result, time())
         return result
