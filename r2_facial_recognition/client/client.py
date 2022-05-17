@@ -84,7 +84,7 @@ class Client:
         try:
             resp = get(self.get_conn_str(), timeout=self.timeout)
             resp.raise_for_status()
-        except ConnectionError:
+        except (ConnectionError, HTTPError):
             result = False
         self._last_result = (result, time())
         return result
