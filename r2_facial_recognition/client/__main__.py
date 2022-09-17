@@ -78,7 +78,7 @@ DISPLAY = getattr(args, 'display', False)
 REMOTE = getattr(args, 'remote', False)
 LOCAL = False if REMOTE else LOCAL
 DEVICE = getattr(args, 'device', DEFAULT_DEVICE)
-DEVICE = DEVICE if DEVICE != 0 else Camera.find_camera()
+DEVICE = DEVICE if DEVICE > 0 else Camera.find_camera()
 
 
 client = Client(local=LOCAL, path=PATH, cache=CACHE,
@@ -86,6 +86,8 @@ client = Client(local=LOCAL, path=PATH, cache=CACHE,
 
 # Do a thing
 # people, face_locations = client.interpret_task('recognize_face')
-matches = client.recognize_faces(disp=DISPLAY)
+# matches = client.recognize_faces(disp=DISPLAY)
+# print(matches)
+matches = client.take_attendance()
 print(matches)
 

@@ -1,7 +1,7 @@
 from typing import Optional, List, Mapping, Tuple
 import numpy as np
 import cv2
-from time import time
+import time
 
 from gamlogger import get_default_logger
 from requests import get, post, HTTPError, ConnectionError
@@ -40,8 +40,29 @@ class Client:
             cv2.waitKey(0)
         return matches
 
-    def take_attendance(self, group, *_, **__):
-        pass
+    def take_attendance(self, *_, **__):
+        """
+        Takes a series of pictures as C1C0 turns, makes a request to the 
+        backend for each picture and unions the results of facial recognition.
+
+        Outputs the matches and asks for confirmation from chatbot.
+        """
+        res = set()
+        # take all 3 pictures then call recognize faces
+        images = []
+        images.append(self.camera.get_frame())
+        # turn left 10 degrees
+        print('TURN LEFT')
+        time.sleep(3)
+        images.append(self.camera.get_frame())
+        # turn right 20 degrees
+        print('TURN RIGHT')
+        time.sleep(3)
+        images.append(self.camera.get_frame())
+        for image in images:
+            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknow')
+
+        return res
 
     def __init__(self,  local: Optional[bool] = DEFAULT_LOCAL,
                  path: str = DEFAULT_PATH, cache: bool = DEFAULT_CACHE,
@@ -71,13 +92,13 @@ class Client:
         self.load_images()
 
     def get_conn_str(self):
-        return f'http://{self._ip}:{self._port}/'
+        return f'http://{self._ip}:{self._port}'
 
     def is_local(self):
         if self._local is not None:
             return self._local
         last_result, last_time = self._last_result
-        if time() - last_time < self._check_in_rate:
+        if time.time() - last_time < self._check_in_rate:
             return last_result
         # Need to update check-in algo
         result = True
@@ -86,7 +107,7 @@ class Client:
             resp.raise_for_status()
         except (ConnectionError, HTTPError):
             result = False
-        self._last_result = (result, time())
+        self._last_result = (result, time.time())
         return result
 
     def interpret_task(self, task):
