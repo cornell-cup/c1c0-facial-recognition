@@ -2,6 +2,7 @@ from typing import Optional, List, Mapping, Tuple
 import numpy as np
 import cv2
 import time
+import tkinter as tk
 
 from gamlogger import get_default_logger
 from requests import get, post, HTTPError, ConnectionError
@@ -39,17 +40,25 @@ class Client:
             cv2.imshow('Detected faces', img)
             cv2.waitKey(0)
         return matches
-    def increase_brightness(self, img, value=30):
+
+    # https://stackoverflow.com/questions/32609098/how-to-fast-change-image-brightness-with-python-opencv
+    def increase_brightness(self, img, value=35):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(hsv)
-
-        lim = 255 - value
-        v[v > lim] = 255
-        v[v <= lim] += value
-
+        v = np.sqrt(255 * v.astype(np.float64)).astype(np.uint8)
         final_hsv = cv2.merge((h, s, v))
         img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
         return img
+
+    # https://stackoverflow.com/questions/46390779/automatic-white-balancing-with-grayworld-assumption
+    def white_balance(self, img):
+        result = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        avg_a = np.average(result[:, :, 1])
+        avg_b = np.average(result[:, :, 2])
+        result[:, :, 1] = result[:, :, 1] - ((avg_a - 128) * (result[:, :, 0] / 255.0) * 1.1)
+        result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
+        result = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
+        return result
 
     def take_attendance(self, *_, **__):
         """
@@ -61,27 +70,31 @@ class Client:
         res = set()
         # take all 3 pictures then call recognize faces
         images = []
-        img1 = self.increase_brightness(self.camera.get_frame())
+        img1 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
         cv2.imshow("img1", img1)
-        cv2.waitKey()
+        cv2.waitKey(1000)
         images.append(img1)
         # turn left 10 degrees
         print('TURN LEFT')
         time.sleep(3)
-        img2 = self.increase_brightness(self.camera.get_frame())
+        img2 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
         cv2.imshow("img2", img2)
-        cv2.waitKey()
+        cv2.waitKey(1000)
         images.append(img2)
         # turn right 20 degrees
         print('TURN RIGHT')
         time.sleep(3)
-        img3 = self.increase_brightness(self.camera.get_frame())
+        img3 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
         cv2.imshow("img3", img3)
-        cv2.waitKey()
+        cv2.waitKey(1000)
         images.append(img3)
         for image in images:
             res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknown')
 
+        window = tk.Tk()
+        greeting = tk.Label(text=', '.join(res))
+        greeting.pack()
+        window.mainloop()
         return res
 
     def __init__(self,  local: Optional[bool] = DEFAULT_LOCAL,
@@ -174,7 +187,6 @@ class Client:
                             'shape': str(img.shape)
                         })
             resp.raise_for_status()
-            print(resp)
             return json.loads(resp.content.decode(TEXT_ENCODING))
 
     def load_images(self):

@@ -12,6 +12,7 @@ class Camera:
 
     def __init__(self, dev=DEFAULT_DEVICE):
         self.dev = cv2.VideoCapture(dev)
+        self.dev.set(cv2.CAP_PROP_EXPOSURE, 100)
         self._dev = dev
 
     def __enter__(self) -> cv2.VideoCapture:
