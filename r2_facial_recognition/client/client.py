@@ -39,6 +39,17 @@ class Client:
             cv2.imshow('Detected faces', img)
             cv2.waitKey(0)
         return matches
+    def increase_brightness(self, img, value=30):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+
+        lim = 255 - value
+        v[v > lim] = 255
+        v[v <= lim] += value
+
+        final_hsv = cv2.merge((h, s, v))
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+        return img
 
     def take_attendance(self, *_, **__):
         """
@@ -50,17 +61,26 @@ class Client:
         res = set()
         # take all 3 pictures then call recognize faces
         images = []
-        images.append(self.camera.get_frame())
+        img1 = self.increase_brightness(self.camera.get_frame())
+        cv2.imshow("img1", img1)
+        cv2.waitKey()
+        images.append(img1)
         # turn left 10 degrees
         print('TURN LEFT')
         time.sleep(3)
-        images.append(self.camera.get_frame())
+        img2 = self.increase_brightness(self.camera.get_frame())
+        cv2.imshow("img2", img2)
+        cv2.waitKey()
+        images.append(img2)
         # turn right 20 degrees
         print('TURN RIGHT')
         time.sleep(3)
-        images.append(self.camera.get_frame())
+        img3 = self.increase_brightness(self.camera.get_frame())
+        cv2.imshow("img3", img3)
+        cv2.waitKey()
+        images.append(img3)
         for image in images:
-            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknow')
+            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknown')
 
         return res
 
@@ -154,6 +174,7 @@ class Client:
                             'shape': str(img.shape)
                         })
             resp.raise_for_status()
+            print(resp)
             return json.loads(resp.content.decode(TEXT_ENCODING))
 
     def load_images(self):
