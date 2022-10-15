@@ -1,3 +1,4 @@
+import time
 import cv2
 import numpy as np
 try:
@@ -76,3 +77,14 @@ class Camera:
                         pixel[0] != pixel[2]:
                     return True
         return False
+
+if __name__ == '__main__':
+    c = Camera(Camera.find_camera())
+    images = []
+    for _ in range(10):
+        images.append(c.get_frame())
+        time.sleep(1)
+    out_dir = '../data/'
+    for i, img in enumerate(images):
+        out_path = f'image {i}.png'
+        cv2.imwrite(out_path, img)

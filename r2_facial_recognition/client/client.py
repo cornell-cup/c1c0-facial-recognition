@@ -1,5 +1,6 @@
 from typing import Optional, List, Mapping, Tuple
 import numpy as np
+from scipy.ndimage import gaussian_filter
 import cv2
 import time
 import tkinter as tk
@@ -7,6 +8,7 @@ from PIL import Image, ImageTk
 from gamlogger import get_default_logger
 from requests import get, post, HTTPError, ConnectionError
 import json
+from os import path
 
 from .config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
     DEFAULT_PATH, DEFAULT_SCALE_FACTOR, DEFAULT_HOST, DEFAULT_PORT, \
@@ -42,10 +44,10 @@ class Client:
         return matches
 
     # https://stackoverflow.com/questions/32609098/how-to-fast-change-image-brightness-with-python-opencv
-    def increase_brightness(self, img, value=35):
+    def increase_brightness(self, img, order = 0.5):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h, s, v = cv2.split(hsv)
-        v = np.sqrt(255 * v.astype(np.float64)).astype(np.uint8)
+        v = (255 ** order * v.astype(np.float64) ** (1 - order)).astype(np.uint8)
         final_hsv = cv2.merge((h, s, v))
         img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
         return img
@@ -59,8 +61,17 @@ class Client:
         result[:, :, 2] = result[:, :, 2] - ((avg_b - 128) * (result[:, :, 0] / 255.0) * 1.1)
         result = cv2.cvtColor(result, cv2.COLOR_LAB2BGR)
         return result
+    
+    def sharpen(self, img, w = 0.5):
+        colors = [i.astype(np.float64) for i in cv2.split(img)]
+        smooth_colors = []
+        for c in colors:
+            smooth_colors.append(gaussian_filter(c, 1.5))
+        ans = [np.clip(((1 + w) * c - w * s), 0, 255).astype(np.uint8) for s, c in zip(smooth_colors, colors)]
+        return cv2.merge(tuple(ans))
 
-    def take_attendance(self, *_, **__):
+
+    def take_attendance(self, local = False, *_, **__):
         """
         Takes a series of pictures as C1C0 turns, makes a request to the 
         backend for each picture and unions the results of facial recognition.
@@ -70,25 +81,30 @@ class Client:
         res = set()
         # take all 3 pictures then call recognize faces
         images = []
-        img1 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        # cv2.imshow("img1", img1)
-        # cv2.waitKey(1000)
-        images.append(img1)
-        # turn left 10 degrees
-        print('TURN LEFT')
-        time.sleep(3)
-        img2 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        # cv2.imshow("img2", img2)
-        # cv2.waitKey(1000)
-        images.append(img2)
-        # turn right 20 degrees
-        print('TURN RIGHT')
-        time.sleep(3)
-        img3 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        # cv2.imshow("img3", img3)
-        # cv2.waitKey(1000)
-        images.append(img3)
-        bounding_boxes = [[] for _ in range(3)]
+        if local:
+            images = [cv2.imread(path.join(path.dirname(__file__), '../../data/image '+ str(i) + '.png') ) for i in range(8)]
+        else:
+            img1 = self.camera.get_frame()
+            # cv2.imshow("img1", img1)
+            # cv2.waitKey(1000)
+            images.append(img1)
+            # turn left 10 degrees
+            print('TURN LEFT')
+            time.sleep(3)
+            img2 = self.camera.get_frame()
+            # cv2.imshow("img2", img2)
+            # cv2.waitKey(1000)
+            images.append(img2)
+            # turn right 20 degrees
+            print('TURN RIGHT')
+            time.sleep(3)
+            img3 = self.camera.get_frame()
+            # cv2.imshow("img3", img3)
+            # cv2.waitKey(1000)
+            images.append(img3)
+        
+        images = [self.sharpen(self.white_balance(self.increase_brightness(img)), w = 1) for img in images]
+        bounding_boxes = [[] for _ in images]
         for i, image in enumerate(images):
             matches = self.analyze_faces(image)['matches']
             for name, bounding_box in matches:
