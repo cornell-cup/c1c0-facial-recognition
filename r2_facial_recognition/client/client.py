@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import time
 import tkinter as tk
-
+from PIL import Image, ImageTk
 from gamlogger import get_default_logger
 from requests import get, post, HTTPError, ConnectionError
 import json
@@ -71,30 +71,50 @@ class Client:
         # take all 3 pictures then call recognize faces
         images = []
         img1 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        cv2.imshow("img1", img1)
-        cv2.waitKey(1000)
+        # cv2.imshow("img1", img1)
+        # cv2.waitKey(1000)
         images.append(img1)
         # turn left 10 degrees
         print('TURN LEFT')
         time.sleep(3)
         img2 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        cv2.imshow("img2", img2)
-        cv2.waitKey(1000)
+        # cv2.imshow("img2", img2)
+        # cv2.waitKey(1000)
         images.append(img2)
         # turn right 20 degrees
         print('TURN RIGHT')
         time.sleep(3)
         img3 = self.white_balance(self.increase_brightness(self.camera.get_frame()))
-        cv2.imshow("img3", img3)
-        cv2.waitKey(1000)
+        # cv2.imshow("img3", img3)
+        # cv2.waitKey(1000)
         images.append(img3)
-        for image in images:
-            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknown')
+        bounding_boxes = [[] for _ in range(3)]
+        for i, image in enumerate(images):
+            matches = self.analyze_faces(image)['matches']
+            for name, bounding_box in matches:
+                if name != 'Unknown':
+                    res.add(name)
+                    bounding_boxes[i].append((bounding_box, name.replace('_', ' ')))
+        for i in range(len(images)):
+            for box, name in bounding_boxes[i]:
+                top, right, bottom, left = box
+                width = right - left
+                height = bottom - top
+                top -= height//5
+                bottom += height//5
+                left -= width//5
+                right += width//5
+                
+                images[i] = cv2.rectangle(images[i], (left, top), (right, bottom), (255, 0, 0), 2)
+                images[i] = cv2.putText(images[i], name, (left, bottom+15),cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 0, 0), 2, cv2.LINE_AA)
+                images[i] = cv2.putText(images[i], name, (left, bottom+15),cv2.FONT_HERSHEY_SIMPLEX, .5, (255, 255, 255), 1, cv2.LINE_AA)
 
-        window = tk.Tk()
-        greeting = tk.Label(text=', '.join(res))
-        greeting.pack()
-        window.mainloop()
+        
+        print(bounding_boxes)
+        concat_img = np.concatenate(tuple(images), axis=1)
+        cv2.imshow("Result", concat_img)
+        cv2.waitKey()
+
         return res
 
     def __init__(self,  local: Optional[bool] = DEFAULT_LOCAL,
