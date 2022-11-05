@@ -10,6 +10,7 @@ from .config import (
 )
 from .client import Client
 from .camera import Camera
+from .CommandClient import *
 
 
 parser = ArgumentParser()
@@ -87,10 +88,17 @@ except Exception:
 client = Client(local=LOCAL, path=PATH, cache=CACHE,
                 cache_location=CACHE_LOCATION, ip=HOST, port=PORT, dev=DEVICE)
 
+command_client = CommandClient("facial-recognition")
+command_client.handshake()
 # Do a thing
 # people, face_locations = client.interpret_task('recognize_face')
 # matches = client.recognize_faces(disp=DISPLAY)
 # print(matches)
-matches = client.take_attendance(local=False)
+scheduler_debug = True
+matches = client.take_attendance(local=False) if not scheduler_debug else ['Some Random Person']
 print(matches)
+
+command_client.communicate(f'found {",".join(matches)}')
+command_client.close()
+
 
