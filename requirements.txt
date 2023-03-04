@@ -4,4 +4,3 @@ numpy
 face_recognition
 Pillow
 num2words
-gamlogger

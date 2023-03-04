@@ -15,9 +15,8 @@ from ..config import (
     IMG_EXTs
 )
 
-from gamlogger import get_default_logger
-
-logger = get_default_logger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 
 ENCODING_MODEL = DEFAULT_ENCODING_MODEL

@@ -3,6 +3,7 @@ This module is fully controllable using command line arguments. See the help
 for each of the below added arguments for usage instructions.
 """
 from argparse import ArgumentParser
+import socket
 
 from .config import (
     DEFAULT_PATH, DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION,
@@ -88,6 +89,10 @@ client = Client(local=LOCAL, path=PATH, cache=CACHE,
 # people, face_locations = client.interpret_task('recognize_face')
 # matches = client.recognize_faces(disp=DISPLAY)
 # print(matches)
-matches = client.take_attendance()
-print(matches)
+matches = client.take_attendance(disp=DISPLAY)
+data = ",".join(matches)
 
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket.connect((HOST, PORT))
+socket.sendall(data.encode())
+socket.close()

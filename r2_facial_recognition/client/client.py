@@ -3,7 +3,6 @@ import numpy as np
 import cv2
 import time
 
-from gamlogger import get_default_logger
 from requests import get, post, HTTPError, ConnectionError
 import json
 
@@ -12,7 +11,8 @@ from .config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
     DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING
 from .camera import Camera
 from .local import local_load_images, local_check_faces
-logger = get_default_logger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -42,7 +42,7 @@ class Client:
 
     def take_attendance(self, *_, **__):
         """
-        Takes a series of pictures as C1C0 turns, makes a request to the 
+        Takes a series of pictures as C1C0 turns, makes a request to the
         backend for each picture and unions the results of facial recognition.
 
         Outputs the matches and asks for confirmation from chatbot.
@@ -52,15 +52,15 @@ class Client:
         images = []
         images.append(self.camera.get_frame())
         # turn left 10 degrees
-        print('TURN LEFT')
+        print('C1C0 TURN LEFT')
         time.sleep(3)
         images.append(self.camera.get_frame())
         # turn right 20 degrees
-        print('TURN RIGHT')
+        print('C1C0 TURN RIGHT')
         time.sleep(3)
         images.append(self.camera.get_frame())
         for image in images:
-            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknow')
+            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknown')
 
         return res
 

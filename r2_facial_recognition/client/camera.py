@@ -42,7 +42,10 @@ class Camera:
         n_tries = 30
 
         while _dev < n_devices:
-            cam = cv2.VideoCapture(f'/dev/video{_dev}')
+            cam = cv2.VideoCapture(_dev)
+            if not cam.isOpened():
+                _dev += 1
+                continue
             tries = 0
             ret = False
             try:
@@ -56,7 +59,7 @@ class Camera:
                 if rgb_only and img is not None and not Camera.is_rgb(img):
                     raise RuntimeError('Camera is not RGB.')
                 cam.release()
-                return f'/dev/video{_dev}'
+                return _dev
             except RuntimeError:
                 cam.release()
                 _dev += 1
