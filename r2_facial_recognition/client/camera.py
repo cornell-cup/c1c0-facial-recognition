@@ -81,13 +81,15 @@ class Camera:
 
     @staticmethod
     def is_rgb(img: np.ndarray, sampling: int = 5):
-        width, height, depth = img.shape
+        try:
+            width, height, _ = img.shape
+        except ValueError:
+            width, height = img.shape
         for x in range(sampling):
             for y in range(sampling):
                 scaled_x = int((x/sampling)*width)
                 scaled_y = int((y/sampling)*height)
                 pixel = img[scaled_x, scaled_y]
-                if pixel[0] != pixel[1] or pixel[1] != pixel[2] or \
-                        pixel[0] != pixel[2]:
+                if pixel[0] != pixel[1] or pixel[1] != pixel[2]:
                     return True
         return False
