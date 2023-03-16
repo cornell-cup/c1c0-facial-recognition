@@ -1,45 +1,58 @@
 import cv2
 import numpy as np
-try:
-    from .config import DEFAULT_DEVICE
-except ImportError:
-    from config import DEFAULT_DEVICE
+
+from r2_facial_recognition.client.config import DEFAULT_DEVICE
+
+# Linter setup
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Optional
 
 
+class DeviceError(OSError):
+    pass
 class Camera:
-
+    """
+    A wrapper around cv2.VideoCapture, see
+    https://docs.opencv.org/3.4/d8/dfe/classcv_1_1VideoCapture.html
+    """
     dev: cv2.VideoCapture
 
-    def __init__(self, dev=DEFAULT_DEVICE):
-        self.dev = cv2.VideoCapture(dev)
-        self._dev = dev
+    def __init__(self, dev:'Optional[int]' = DEFAULT_DEVICE, n_tries = 30):
+        """
+        Facial Recognition camera.
 
-    def __enter__(self) -> cv2.VideoCapture:
+        PARAMETERS
+        ----------
+        dev -
+            Device ID for the camera. Refer to cv2.VideoCapture. If None, will
+            call Camera.find_camera() to get the camera. By default will use the config value, DEFAULT_DEVICE.
+        """
+        self._dev = Camera.find_camera() if dev is None else dev
+        self.dev = cv2.VideoCapture(self._dev)
+        self.n_tries = n_tries
+
+    def __enter__(self) -> 'Camera':
         if not self.dev.isOpened():
-            self.dev.open(self._dev)
-        return self.dev
-
-    def get_frame(self):
-        N = 30
-        with self as cam:
-            ret = False
-            tries = 0
-            img = None
-            while not ret:
-                ret, img = cam.read()
-                if tries > N:
-                    raise RuntimeError(f'No frames received after {N} tries.')
-                tries += 1
-            return img
+            if not self.dev.open(self._dev):
+                raise DeviceError(f'Unable to open device at index: {self._dev}')
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.dev.release()
 
+    def read(self, n_tries = None):
+        n_tries = self.n_tries if n_tries is None else n_tries
+        for _ in range(n_tries):
+            ret, img = self.dev.read()
+            if ret:
+                return img
+        raise DeviceError(f'No frames received after {n_tries} tries.')
+
     @staticmethod
-    def find_camera(rgb_only: bool = True):
+    def find_camera(rgb_only: bool = True, n_devices = 10, n_tries = 30):
         _dev = 0
-        n_devices = 10
-        n_tries = 30
 
         while _dev < n_devices:
             cam = cv2.VideoCapture(_dev)

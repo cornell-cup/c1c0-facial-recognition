@@ -85,14 +85,18 @@ DEVICE = DEVICE if DEVICE > 0 else Camera.find_camera()
 client = Client(local=LOCAL, path=PATH, cache=CACHE,
                 cache_location=CACHE_LOCATION, ip=HOST, port=PORT, dev=DEVICE)
 
-# Do a thing
-# people, face_locations = client.interpret_task('recognize_face')
-# matches = client.recognize_faces(disp=DISPLAY)
-# print(matches)
-matches = client.take_attendance(disp=DISPLAY)
-data = ",".join(matches)
 
-socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket.connect((HOST, PORT))
-socket.sendall(data.encode())
-socket.close()
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+     sock.connect((HOST, PORT))
+     # Later chatbot integration:
+     # data = socket.recv(1024).decode()
+     # client.interpret_task(data)
+
+     # For now, just always take attendance.
+     matches = client.take_attendance(disp=DISPLAY)
+     data = ",".join(matches)
+     sock.sendall(data.encode())
+finally:
+     sock.close()

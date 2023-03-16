@@ -1,8 +1,8 @@
 import os
 
 DEFAULT_PATH = os.getenv('DEFAULT_PATH', 'resources/people')
-DEFAULT_LOCAL = os.getenv('DEFAULT_LOCAL', None)
-DEFAULT_CACHE = os.getenv('DEFAULT_LOCAL', True)
+DEFAULT_LOCAL = os.getenv('DEFAULT_LOCAL', True)
+DEFAULT_CACHE = os.getenv('DEFAULT_CACHE', True)
 DEFAULT_CACHE_LOCATION = os.getenv('DEFAULT_CACHE_LOCATION', '.cache')
 DEFAULT_HOST = os.getenv('DEFAULT_HOST', '127.0.0.1')
 DEFAULT_DEVICE = int(os.getenv('DEFAULT_DEVICE', -1))
@@ -12,6 +12,7 @@ DEFAULT_PORT = 1233  # 8080 HTTP non-privileged testing port. Use 80 for
 DEFAULT_SCALE_FACTOR = 0.25
 DEFAULT_ENCODING_MODEL = 'large'
 DEFAULT_NN_MODEL = 'hog'
+DEFAULT_UNKNOWN_FACE_ID = 'Unknown'
 
 DEFAULT_TIMEOUT = 10
 DEFAULT_CHECKIN_RATE = 10  # Check-in every 10 seconds

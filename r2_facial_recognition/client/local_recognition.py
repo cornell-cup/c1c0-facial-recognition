@@ -5,28 +5,71 @@ This module defines all the functions necessary to locally perform a
   facial recognition task.
 """
 import os
-from typing import Mapping, Tuple, List
+import logging
 
-import face_recognition
 import numpy as np
+import face_recognition
 
-from ..config import (
+from r2_facial_recognition.client.config import (
     DEFAULT_ENCODING_MODEL, DEFAULT_NN_MODEL, DEFAULT_CACHE_LOCATION,
-    IMG_EXTs
+    IMG_EXTs, DEFAULT_UNKNOWN_FACE_ID
 )
 
-import logging
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Mapping, Tuple, List, MutableMapping
+
 logger = logging.getLogger(__name__)
 
 
 ENCODING_MODEL = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL = DEFAULT_NN_MODEL
+UNKNOWN_FACE = DEFAULT_UNKNOWN_FACE_ID
 
+def check_and_add(path_: str, file_: str, mappings: 'MutableMapping', cache_location: str = DEFAULT_CACHE_LOCATION, cache: bool = True) -> None:
+        """
+        Helper function that checks if the encoding is already generated, and
+        if so adds it to the mappings. Otherwise, it will generate an encoding
+        for the face, and store it in the mappings. File names are important
+        for it to distinguish which user is which.
 
-def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
+        PARAMETERS
+        ----------
+        path_
+            The path as a str to the directory where the file is located.
+        file_
+            The filename.
+        """
+        try:
+            filename_ = file_[:file_.rindex('.')]
+        except ValueError as exc:
+            raise ValueError(f'file named {file_} does not contain a ".".') \
+                from exc
+        if cache:
+            # Following EAFP idiom.
+            try:
+                mappings[filename_] = _get_cached(filename_, cache_location)
+            except OSError:
+                # DNE in cache
+                encoding = face_recognition.face_encodings(
+                    face_recognition.load_image_file(os.path.join(path_,
+                                                                  file_)),
+                    model=ENCODING_MODEL
+                )[0]
+                _add_cache(filename_, encoding, cache_location)
+                mappings[filename_] = encoding
+
+        else:
+            mappings[filename_] = face_recognition.face_encodings(
+                face_recognition.load_image_file(os.path.join(path_, file_)),
+                model=ENCODING_MODEL
+            )[0]
+
+def load_images(path: str, mappings: 'Mapping[str, np.ndarray]' = None,
                  cache: bool = True,
                  cache_location: str = DEFAULT_CACHE_LOCATION) -> \
-                 Mapping[str, np.ndarray]:
+                 'Mapping[str, np.ndarray]':
     """
     Loads in the image(s) from the given `path`.
 
@@ -51,45 +94,6 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
     logger.info('Load images called.')
     mappings = {} if mappings is None else mappings
 
-    def check_and_add(path_: str, file_: str) -> None:
-        """
-        Helper function that checks if the encoding is already generated, and
-        if so adds it to the mappings. Otherwise, it will generate an encoding
-        for the face, and store it in the mappings. File names are important
-        for it to distinguish which user is which.
-
-        PARAMETERS
-        ----------
-        path_
-            The path as a str to the directory where the file is located.
-        file_
-            The filename.
-        """
-        try:
-            filename_ = file_[:file_.rindex('.')]
-        except ValueError as exc:
-            raise ValueError(f'file named {file_} does not contain a ".".') \
-                from exc
-        if cache:
-            # Following EAFP idiom.
-            try:
-                mappings[filename_] = get_cached(filename_, cache_location)
-            except OSError:
-                # DNE in cache
-                encoding = face_recognition.face_encodings(
-                    face_recognition.load_image_file(os.path.join(path_,
-                                                                  file_)),
-                    model=ENCODING_MODEL
-                )[0]
-                add_cache(filename_, encoding, cache_location)
-                mappings[filename_] = encoding
-
-        else:
-            mappings[filename_] = face_recognition.face_encodings(
-                face_recognition.load_image_file(os.path.join(path_, file_)),
-                model=ENCODING_MODEL
-            )[0]
-
     if os.path.isdir(path):
         for _, _, files in os.walk(path):
             for file in files:
@@ -97,7 +101,7 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
                 ext = file[ext_idx+1:]
                 if ext in IMG_EXTs:
                     # filename = file[:file.rindex('.')]
-                    check_and_add(path, file)
+                    check_and_add(path, file, mappings, cache_location, cache)
                 else:
                     print(f'Ignoring file: {file}, with extension: {ext} not '
                           f'in {IMG_EXTs}')
@@ -108,14 +112,14 @@ def _load_images(path: str, mappings: Mapping[str, np.ndarray] = None,
                   'extension. Make sure this is actually an image file.')
         # os.path.split should return head and tail, path and filename
         # respectively
-        check_and_add(*os.path.split(path))
+        check_and_add(*os.path.split(path), mappings, cache_location, cache)
     else:
         raise RuntimeError(f'The path given ({path}) is not a directory or '
                            f'file.')
     return mappings
 
 
-def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
+def _get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
         np.ndarray:
     """
     Gets the cached encoding from cache_location.
@@ -142,7 +146,7 @@ def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
         return np.frombuffer(f.read())
 
 
-def add_cache(name: str, encoding: np.ndarray,
+def _add_cache(name: str, encoding: np.ndarray,
               cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
     """
     Adds the [encoding] to the [cache_location] directory under [name].
@@ -163,8 +167,8 @@ def add_cache(name: str, encoding: np.ndarray,
         f.write(encoding.tobytes())
 
 
-def _check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) ->\
-        List[Tuple[str, Tuple[int, int, int, int]]]:
+def check_faces(img: np.ndarray, mappings: 'Mapping[str, np.ndarray]') ->\
+        'List[Tuple[str, Tuple[int, int, int, int]]]':
     """
     Runs the facial recognition algorithm on [img]. All possible responses are
     keys in [mappings].
@@ -214,7 +218,7 @@ def _check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) ->\
         closest_idx = np.argmin(face_distances)
         # distance = face_distances[closest_idx]
         name = ordered_map[closest_idx][0] if matches[closest_idx] else \
-            'Unknown'
+            UNKNOWN_FACE
 
         identities.append(name)
     return list(zip(identities, unknown_face_locations))

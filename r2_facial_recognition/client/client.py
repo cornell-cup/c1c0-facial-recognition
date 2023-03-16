@@ -1,37 +1,58 @@
-from typing import Optional, List, Mapping, Tuple
-import numpy as np
-import cv2
 import time
-
-from requests import get, post, HTTPError, ConnectionError
+import threading
 import json
 
-from .config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
+from requests import get, post, HTTPError, ConnectionError
+import numpy as np
+import cv2
+
+from r2_facial_recognition.client.config import DEFAULT_LOCAL, DEFAULT_CACHE, DEFAULT_CACHE_LOCATION, \
     DEFAULT_PATH, DEFAULT_SCALE_FACTOR, DEFAULT_HOST, DEFAULT_PORT, \
-    DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING
-from .camera import Camera
-from .local import local_load_images, local_check_faces
+    DEFAULT_DEVICE, DEFAULT_TIMEOUT, DEFAULT_CHECKIN_RATE, TEXT_ENCODING, DEFAULT_UNKNOWN_FACE_ID
+from r2_facial_recognition.client.camera import Camera
+from r2_facial_recognition.client.local_recognition import check_faces as local_check_faces, load_images as local_load_images
+
+
 import logging
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Optional, List, Mapping, Tuple, Callable, Sized, Iterable, Any
+
 logger = logging.getLogger(__name__)
 
+UNKNOWN_FACE = DEFAULT_UNKNOWN_FACE_ID
+
+class InvalidParameter(ValueError):
+    pass
 
 class Client:
-    def recognize_faces(self, disp: bool = False, best_of_n: int = 3,
-                        *_, **__):
+    # camera: Camera
+
+    def learn_face(self, name: str ,disp: bool = False, best_of_n: int = 3, *_, **__):
+        with self.camera:
+            img = self.camera.read()
+            detected_face = local_check_faces(img, self.encoding_map)
+            if detected_face != UNKNOWN_FACE:
+                # Handle case where c1c0 thinks user already exists.
+                pass
+
+
         matching_attempts = []
         img = None
+        self.c
         for i in range(best_of_n):
-            img = self.camera.get_frame()
+            img = self.camera.read()
             result = self.analyze_faces(img)
             matching_attempts.extend(result['matches'])
         matches = {}
         unknowns = 0
         for name, loc in matching_attempts:
-            if name == 'Unknown':
+            if name == UNKNOWN_FACE:
                 name = f'{name}{unknowns}'
                 unknowns += 1
             matches[name] = loc
-
+        logger.info(f'Detected {matches} in a frame.')
         if disp:
             for name, (top, right, bottom, left) in matches.items():
                 cv2.putText(img, name, (left - 20, bottom + 20),
@@ -47,24 +68,31 @@ class Client:
 
         Outputs the matches and asks for confirmation from chatbot.
         """
+        n_imgs = 3
         res = set()
         # take all 3 pictures then call recognize faces
-        images = []
-        images.append(self.camera.get_frame())
-        # turn left 10 degrees
-        print('C1C0 TURN LEFT')
-        time.sleep(3)
-        images.append(self.camera.get_frame())
-        # turn right 20 degrees
-        print('C1C0 TURN RIGHT')
-        time.sleep(3)
-        images.append(self.camera.get_frame())
-        for image in images:
-            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != 'Unknown')
+        def analyze(image):
+            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != UNKNOWN_FACE)
+        workers = []
+        with self.camera as cam:
+            # TODO: Write fold-join
+            # Did not need to name it cam, self.camera == cam. But wanted to anyway
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers[0].start()
+            # turn left 10 degrees
+            print('C1C0 TURN LEFT')
+            time.sleep(3)
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers[1].start()
+            # turn right 20 degrees
+            print('C1C0 TURN RIGHT')
+            time.sleep(3)
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers[2].start()
 
         return res
 
-    def __init__(self,  local: Optional[bool] = DEFAULT_LOCAL,
+    def __init__(self,  local: 'Optional[bool]' = DEFAULT_LOCAL,
                  path: str = DEFAULT_PATH, cache: bool = DEFAULT_CACHE,
                  cache_location: str = DEFAULT_CACHE_LOCATION,
                  mappings=None, ip=DEFAULT_HOST, port=DEFAULT_PORT,
@@ -74,14 +102,14 @@ class Client:
         # api.load_images()
         self.camera = Camera(dev)
         self._task_map = {
-            'recognize_face': self.recognize_faces,
+            'learn_face': self.learn_face,
             'take_attendance': self.take_attendance
         }
         self._local = local
         self._path = path
         self.use_cache = cache
         self.cache_location = cache_location
-        self._mappings = mappings if mappings is not None else {}
+        self.encoding_map = mappings if mappings is not None else {}
         self._ip = ip
         self._port = port
         self.scale_factor = DEFAULT_SCALE_FACTOR if scale_factor is None else \
@@ -111,16 +139,17 @@ class Client:
         return result
 
     def interpret_task(self, task):
+
         return self._task_map[task]
 
     def set_local(self, filepath: str, force: bool = True):
         self._path = self._path if filepath is None else filepath
-        self._mappings = self._mappings if filepath is None else \
+        self.encoding_map = self.encoding_map if filepath is None else \
             local_load_images(filepath)
         if force:
             self._local = True
 
-    def set_remote(self, ip: Optional[str] = None, port: Optional[int] = None,
+    def set_remote(self, ip: 'Optional[str]' = None, port: 'Optional[int]' = None,
                    force: bool = True):
         self._ip = self._ip if ip is None else ip
         self._port = self._port if port is None else port
@@ -131,13 +160,13 @@ class Client:
         self._local = None
 
     def analyze_faces(self, img: np.ndarray) -> \
-            Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]:
+            'Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]':
         resized = cv2.resize(img, (0, 0), fx=self.scale_factor,
                              fy=self.scale_factor)
 
         if self.is_local():
             return {
-                'matches': local_check_faces(resized, self._mappings),
+                'matches': local_check_faces(resized, self.encoding_map),
                 'face_locations': []
             }
         else:
@@ -159,7 +188,7 @@ class Client:
     def load_images(self):
         logger.info('Loading images')
         if self.is_local():
-            result = local_load_images(self._path, self._mappings,
+            result = local_load_images(self._path, self.encoding_map,
                                        cache=self.use_cache,
                                        cache_location=self.cache_location)
             logger.info('Images loaded.')
@@ -169,5 +198,5 @@ class Client:
             #  r2_facial_recognition_server
             return True
 
-    def get_actions(self) -> List[str]:
+    def get_actions(self) -> 'List[str]':
         return list(self._task_map.keys())

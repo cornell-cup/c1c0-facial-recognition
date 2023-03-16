@@ -1,5 +1,4 @@
 __all__ = ['Client', 'config', 'camera']
 
-from .client import Client
-from . import config
-from . import camera
+from r2_facial_recognition.client.client import Client
+from r2_facial_recognition.client import config, camera
