@@ -1,6 +1,7 @@
 import time
 import threading
 import json
+import sys
 
 from requests import get, post, HTTPError, ConnectionError
 import numpy as np
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
     from typing import Optional, List, Mapping, Tuple, Callable, Sized, Iterable, Any
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 UNKNOWN_FACE = DEFAULT_UNKNOWN_FACE_ID
 
@@ -38,30 +40,8 @@ class Client:
                 pass
 
 
-        matching_attempts = []
-        img = None
-        self.c
-        for i in range(best_of_n):
-            img = self.camera.read()
-            result = self.analyze_faces(img)
-            matching_attempts.extend(result['matches'])
-        matches = {}
-        unknowns = 0
-        for name, loc in matching_attempts:
-            if name == UNKNOWN_FACE:
-                name = f'{name}{unknowns}'
-                unknowns += 1
-            matches[name] = loc
-        logger.info(f'Detected {matches} in a frame.')
-        if disp:
-            for name, (top, right, bottom, left) in matches.items():
-                cv2.putText(img, name, (left - 20, bottom + 20),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            cv2.imshow('Detected faces', img)
-            cv2.waitKey(0)
-        return matches
 
-    def take_attendance(self, *_, **__):
+    def take_attendance(self, disp: bool = False, *_, **__):
         """
         Takes a series of pictures as C1C0 turns, makes a request to the
         backend for each picture and unions the results of facial recognition.
@@ -72,22 +52,32 @@ class Client:
         res = set()
         # take all 3 pictures then call recognize faces
         def analyze(image):
-            res.update(name for name, _ in self.analyze_faces(image)['matches'] if name != UNKNOWN_FACE)
+            results = self.analyze_faces(image)
+            res.update(name for name, _ in results['matches'] if name != UNKNOWN_FACE)
+            print('analyzing')
+            if disp:
+                # print('displaying')
+                for name, (top, right, bottom, left) in results['matches']:
+                    cv2.putText(image, name, (left - 20, bottom + 20),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.imshow('Detected faces', image)
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    sys.exit(0)
         workers = []
         with self.camera as cam:
             # TODO: Write fold-join
             # Did not need to name it cam, self.camera == cam. But wanted to anyway
-            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),), daemon=True))
             workers[0].start()
             # turn left 10 degrees
             print('C1C0 TURN LEFT')
             time.sleep(3)
-            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),), daemon=True))
             workers[1].start()
             # turn right 20 degrees
             print('C1C0 TURN RIGHT')
             time.sleep(3)
-            workers.append(threading.Thread(target=analyze, args=(cam.read(),)))
+            workers.append(threading.Thread(target=analyze, args=(cam.read(),), daemon=True))
             workers[2].start()
 
         return res

@@ -221,4 +221,5 @@ def check_faces(img: np.ndarray, mappings: 'Mapping[str, np.ndarray]') ->\
             UNKNOWN_FACE
 
         identities.append(name)
+    # List to retain duplicates (besides known)
     return list(zip(identities, unknown_face_locations))

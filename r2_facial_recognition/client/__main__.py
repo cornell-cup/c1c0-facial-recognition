@@ -96,7 +96,7 @@ try:
 
      # For now, just always take attendance.
      matches = client.take_attendance(disp=DISPLAY)
-     data = ",".join(matches)
+     data = ",".join(matches.items())
      sock.sendall(data.encode())
 finally:
      sock.close()
