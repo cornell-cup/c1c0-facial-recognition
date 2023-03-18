@@ -1,4 +1,6 @@
+import sys
 import os
+import logging
 
 DEFAULT_PATH = os.getenv('DEFAULT_PATH', 'resources/people')
 DEFAULT_LOCAL = os.getenv('DEFAULT_LOCAL', True)
@@ -23,4 +25,14 @@ SEND_ENCODING = True
 
 TEXT_ENCODING = 'utf-8'
 
+LOG_FILE = os.path.join(os.getcwd(), 'facial_recognition.log')
+LOG_LEVEL = logging.INFO
+# LOG_LEVEL = logging.INFO
+# LOG_LEVEL = logging.WARNING 
+# LOG_LEVEL = logging.ERROR
+# LOG_LEVEL = logging.CRITICAL
+# LOG_LEVEL = logging.FATAL
+
+del sys
 del os
+del logging

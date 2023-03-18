@@ -27,6 +27,8 @@ ENCODING_MODEL = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL = DEFAULT_NN_MODEL
 UNKNOWN_FACE = DEFAULT_UNKNOWN_FACE_ID
 
+# def add_face()
+
 def check_and_add(path_: str, file_: str, mappings: 'MutableMapping', cache_location: str = DEFAULT_CACHE_LOCATION, cache: bool = True) -> None:
         """
         Helper function that checks if the encoding is already generated, and
@@ -143,6 +145,7 @@ def _get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> \
         The encoding as a np.ndarray.
     """
     with open(os.path.join(cache_location, f'{name}.encoding'), 'rb') as f:
+        logger.debug(f'Found {name}\'s cached encoding.')
         return np.frombuffer(f.read())
 
 
@@ -165,6 +168,7 @@ def _add_cache(name: str, encoding: np.ndarray,
         f.seek(0)
         f.truncate()
         f.write(encoding.tobytes())
+    logger.debug(f'{name} added to cache.')
 
 
 def check_faces(img: np.ndarray, mappings: 'Mapping[str, np.ndarray]') ->\
@@ -222,4 +226,6 @@ def check_faces(img: np.ndarray, mappings: 'Mapping[str, np.ndarray]') ->\
 
         identities.append(name)
     # List to retain duplicates (besides known)
-    return list(zip(identities, unknown_face_locations))
+    all_faces = list(zip(identities, unknown_face_locations))
+    logger.debug('check_faces found: (%s)', all_faces)
+    return all_faces

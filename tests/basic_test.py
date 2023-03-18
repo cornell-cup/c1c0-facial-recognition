@@ -28,7 +28,8 @@ def accept_data():
                 print(f'Received: {data}')
                 sock.send(data)
         except OSError:
-            print('No data yet.')
+            pass
+            # print('No data yet.')
 
 
 if __name__ == '__main__':
@@ -47,8 +48,11 @@ if __name__ == '__main__':
         # For now, just always take attendance.
         print('Taking attendance')
         matches = client.take_attendance(disp=DISPLAY)
+        # Create set of names from results
+        matches = {match for matches_ in matches for match, _ in matches_}
         data = ",".join(matches)
         print(f'Sending: {data}')
         sock.sendall(data.encode())
     finally:
         sock.close()
+    print('Test presumably passed.' if data else 'Test presumably failed.')
