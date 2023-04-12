@@ -101,9 +101,6 @@ class Client:
             rot_time = 3
             rotate.init_serial()
 
-            rotate.send_msg(rotate.format_msg(90, 0, 1))
-            time.sleep(rot_time)
-
             # Start processing pic 0
             process_frame(0)
 
