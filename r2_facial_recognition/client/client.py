@@ -100,6 +100,7 @@ class Client:
             # Attempting to start head rotation serial communication
             rot_time = 3
             rotate.init_serial()
+
             rotate.send_msg(rotate.format_msg(90, 0, 1))
             time.sleep(rot_time)
 
@@ -131,7 +132,10 @@ class Client:
             time.sleep(rot_time)
 
             workers[2].join()
+
+            # Ending head rotation serial communication
             display(imgs[2], res[2])
+            rotate.close_serial()
 
         return res
 
