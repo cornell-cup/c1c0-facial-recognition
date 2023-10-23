@@ -131,11 +131,14 @@ class Camera:
             width, height = img.shape
         for x in range(sampling):
             for y in range(sampling):
-                scaled_x = int((x/sampling)*width)
-                scaled_y = int((y/sampling)*height)
-                pixel = img[scaled_x, scaled_y]
-                if pixel[0] != pixel[1] or pixel[1] != pixel[2]:
-                    logger.debug('Camera is RGB.')
-                    return True
+                try:
+                    scaled_x = int((x/sampling)*width)
+                    scaled_y = int((y/sampling)*height)
+                    pixel = img[scaled_x, scaled_y]
+                    if pixel[0] != pixel[1] or pixel[1] != pixel[2]:
+                        logger.debug('Camera is RGB.')
+                        return True
+                except IndexError:
+                    continue
         logger.debug('Camera is not RGB.')
         return False

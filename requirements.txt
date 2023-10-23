@@ -1,6 +1,8 @@
 requests
-opencv-python
+opencv-python==4.7.0.68
 numpy
 face_recognition
 Pillow
 num2words
+setuptools
+typing
