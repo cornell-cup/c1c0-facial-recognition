@@ -1,17 +1,8 @@
-import time
-import threading
-
-# May not use
-
+import time, threading, cv2
 import numpy as np
-import cv2
 
-FPS = 10
-SPF = 1./FPS # Seconds per frame
-
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import Generator
+FPS: int = 10
+SPF: float = 1. / FPS
 
 class Viewer:
     def __init__(self, name):

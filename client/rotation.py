@@ -1,12 +1,10 @@
-import time
-import serial
-import struct
+import time, serial, struct
 
-# Global reference to the serial port.
-ser = None
+from typing import List, Tuple
 
-# Global reference to checksum table.
-crc16_table = [
+# Global reference to the serial port and checksum table.
+ser: 'serial.Serial' = None
+crc16_table: List[int] = [
     0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
     0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
     0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
@@ -41,108 +39,98 @@ crc16_table = [
     0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 ]
 
-def crc16_check(data):
+def crc16_check(data: bytes) -> int:
     """
     Calculates CRC16 checksum for the given data. 0 for incorrect checksum, 1
     for correct checksum.
     """
 
-    crc = 0xffff
+    crc: int = 0xffff
     for c in data:
-        crc = ((crc << 8) ^ crc16_table[((crc >> 8) ^ c) & 0xff]) & 0xffff
+        crc: int = ((crc << 8) ^ crc16_table[((crc >> 8) ^ c) & 0xff]) & 0xffff
 
-    if crc == 0:
-        crc = 1
+    if crc == 0: crc: int = 1
     return crc
 
-def encode_data(type_, data):
+def encode_data(type_: bytes, data: bytes) -> bytes:
     """
     Encodes the given data using r2protocol.
     """
 
-    checksum = crc16_check(data)
-    return struct.pack("> 3B H 4s I {}s 3B".format(len(data)),
-                        0xa2, 0xb2, 0xc2, checksum, type_, len(data),
-                        data, 0xd2, 0xe2, 0xf2)
+    checksum: int = crc16_check(data)
+    return struct.pack("> 3B H 4s I {}s 3B".format(len(data)), 0xa2, 0xb2, 0xc2,
+                       checksum, type_, len(data), data, 0xd2, 0xe2, 0xf2)
 
-def decode_data(data):
+def decode_data(data: bytes) -> Tuple[bytes, bytes, int]:
     """
     Confirm checksum of data and return a tuple containing message type, message
     data, and checksum status. 0 for incorrect checksum, 1 for correct checksum.
     """
 
     # Try unpacking data until the correct message length is found
-    flag = False
-    i = 0
+    flag: bool = False
+    ind: int = 0
 
-    while not flag and i < 17: # Allow message length up to 16 bytes
+    while not flag and ind < 17: # Allow message length up to 16 bytes
         try:
-            recv = struct.unpack('> 3B H 4s I {}s 3B'.format(i), data)
-            flag = True
+            recv: any = struct.unpack('> 3B H 4s I {}s 3B'.format(i), data)
+            flag: bool = True
+        except: ind += 1
 
-        except:
-            i += 1
+    # ! This was a change from the original code, if something fails maybe remove this
+    if ind >= 17 or len(recv) < 7: return -1, -1, -1
 
-    # ! This was a change from the original code, if something fails maybe
-    # ! remove this
-    if i >= 17 or len(recv) < 7: # Error decoding
-        return -1, -1, -1
+    msgchecksum: int = recv[3]
+    msgtype: bytes = recv[4]
+    msg: bytes = recv[6]
 
-    msgchecksum = recv[3]
-    msgtype = recv[4]
-    msg = recv[6]
-
-    checksum = crc16_check(msg)
-    status = int(checksum == msgchecksum)
+    checksum: int = crc16_check(msg)
+    status: int = int(checksum == msgchecksum)
     return msgtype, msg, status
 
-def init_serial(_port = '/dev/ttyTHS1', _baud = 9600):
-	"""
-	Opens the serial port to the Arduino, must be called at the beginning before
-	using any other functions.
+def init_serial(_port: str = '/dev/ttyTHS1', _baud: int = 9600) -> None:
+    """
+    Opens the serial port to the Arduino, must be called at the beginning before
+    using any other functions.
     """
 
-	global ser
-	ser = serial.Serial(port = _port, baudrate = _baud)
+    global ser; ser = serial.Serial(port = _port, baudrate = _baud)
 
-def close_serial():
-	"""
-	Closes the serial port to the Arduino, must be called at the end of the
-	program.
+def close_serial() -> None:
+    """
+    Closes the serial port to the Arduino, must be called at the end of the
+    program.
     """
 
-	global ser
-	ser.close()
+    global ser; ser.close()
 
-def format_msg(angle, negative, absolute):
+def format_msg(angle: int, negative: bool, absolute: bool) -> str:
     """
 	This method takes information about the angle of rotation and formats to be
     able to be sent to the arduino to turn the servo.
 
-    @param angle: int, 0 <= ang <= 202, angle to turn (either to or for).
-    @param negative: bool, 1 if the angle is negative from the current position
-        (only necessary when the angle is a change in).
-    @param absolute: bool, 1 if the ang given is an absolute angle, 0 if ang is
-        a change in angle.
+    @param angle, 0 <= ang <= 202, angle to turn (either to or for).
+    @param negative, 1 if the angle is negative from the current position
+           (only necessary when the angle is a change in).
+    @param absolute, 1 if the ang given is an absolute angle, 0 if ang is
+           a change in angle.
     """
 
-    data = 'head rot: ' + str(angle) + str(absolute) + str(negative)
+    data: str = 'head rot: ' + str(angle) + str(absolute) + str(negative)
     return data
 
-def send_msg(msg):
+def send_msg(msg: str) -> int:
     """
     Attempts to send the given formatted message to the Arduino. Returns 1 if
     successful, 0 if unsuccessful.
     """
 
-    byte_msg = bytearray(msg.encode())
-    byte_type = bytes("head", "utf-8")
-    data = encode_data(byte_type, byte_msg)
+    byte_msg: bytes = bytearray(msg.encode())
+    byte_type: bytes = bytes("head", "utf-8")
+    data: bytes = encode_data(byte_type, byte_msg)
 
     try:
         ser.write(data)
         time.sleep(0.1)
         return 1
-
-    except:
-        return 0
+    except: return 0

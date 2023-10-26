@@ -13,9 +13,8 @@ from .client import Client
 from .camera import Camera
 
 
-parser = ArgumentParser()
-# Add arguments
-# Flags
+# parser = ArgumentParser()
+
 parser.add_argument('-l', '--local', action='store_true',
                     default=DEFAULT_LOCAL,
                     help='Tells the Facial Recognition Client to run in '
@@ -69,34 +68,31 @@ input_ = getattr(args, 'input')
 #  functionality.
 # Normally, just call `api.set_[local/remote](req. params)`
 # We do this here to allow full configurability.
-LOCAL = getattr(args, 'local', DEFAULT_LOCAL)
-CACHE = getattr(args, 'no_cache', DEFAULT_CACHE)
-CACHE_LOCATION = getattr(args, 'cache_location', DEFAULT_CACHE_LOCATION)
-PATH = getattr(args, 'path', DEFAULT_PATH)
-HOST = getattr(args, 'host', DEFAULT_HOST)
-PORT = getattr(args, 'port', DEFAULT_PORT)
-DISPLAY = getattr(args, 'display', False)
-REMOTE = getattr(args, 'remote', False)
-LOCAL = False if REMOTE else LOCAL
-DEVICE = getattr(args, 'device', DEFAULT_DEVICE)
-DEVICE = DEVICE if DEVICE > 0 else Camera.find_camera()
+# LOCAL = getattr(args, 'local', DEFAULT_LOCAL)
+# CACHE = getattr(args, 'no_cache', DEFAULT_CACHE)
+# CACHE_LOCATION = getattr(args, 'cache_location', DEFAULT_CACHE_LOCATION)
+# PATH = getattr(args, 'path', DEFAULT_PATH)
+# HOST = getattr(args, 'host', DEFAULT_HOST)
+# PORT = getattr(args, 'port', DEFAULT_PORT)
+# DISPLAY = getattr(args, 'display', False)
+# REMOTE = getattr(args, 'remote', False)
+# LOCAL = False if REMOTE else LOCAL
+# DEVICE = getattr(args, 'device', DEFAULT_DEVICE)
+# DEVICE = DEVICE if DEVICE > 0 else Camera.find_camera()
 
 
-client = Client(local=LOCAL, path=PATH, cache=CACHE,
-                cache_location=CACHE_LOCATION, ip=HOST, port=PORT, dev=DEVICE)
+# client = Client(local=LOCAL, path=PATH, cache=CACHE, cache_location=CACHE_LOCATION, ip=HOST, port=PORT, dev=DEVICE)
+# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-try:
-     sock.connect((HOST, PORT))
+# try:
+     # sock.connect((HOST, PORT))
      # Later chatbot integration:
      # data = socket.recv(1024).decode()
      # client.interpret_task(data)
 
      # For now, just always take attendance.
-     matches = client.take_attendance(disp=DISPLAY)
-     data = ",".join(matches.items())
-     sock.sendall(data.encode())
-finally:
-     sock.close()
+     # matches = client.take_attendance(disp=DISPLAY)
+     # data = ",".join(matches.items())
+     # sock.sendall(data.encode())
+# finally:
+     # sock.close()

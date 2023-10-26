@@ -1,8 +1,8 @@
-requests
+requests==2.27.1
 opencv-python==4.7.0.68
-numpy
-face_recognition
-Pillow
-num2words
-setuptools
-typing
+numpy==1.19.4
+face_recognition==1.3.0
+Pillow==8.4.0
+num2words==0.5.13
+typing==3.7.4.3
+serial==0.0.97
