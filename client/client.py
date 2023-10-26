@@ -2,7 +2,7 @@ from requests import get, post, HTTPError, ConnectionError
 import time, threading, json, cv2, logging
 import numpy as np
 
-from client.classify import check_faces, load_images, check_and_add
+from client.classify import check_faces, local_load_images, check_and_add
 from client.camera import Camera
 import client.rotation as rotate
 from client.config import *
@@ -112,19 +112,19 @@ class Client:
 		"""
 
 		self.camera = Camera(dev)
-		# self.task_map = { 'learn_face': self.learn_face, 'take_attendance': self.take_attendance }
-		# self.local = local
-		# self.path = path
-		# self.use_cache = cache
-		# self.cache_location = cache_location
-		# self.encoding_map = mappings if mappings is not None else {}
-		# self.ip = ip
-		# self.port = port
-		# self.scale_factor = DEFAULT_SCALE_FACTOR if scale_factor is None else scale_factor
-		# self.timeout = timeout
-		# self.last_result = (False, 0)
-		# self.check_in_rate = check_in_rate
-		# self.load_images()
+		self.task_map = { 'learn_face': self.learn_face, 'take_attendance': self.take_attendance }
+		self.local = local
+		self.path = path
+		self.use_cache = cache
+		self.cache_location = cache_location
+		self.encoding_map = mappings if mappings is not None else {}
+		self.ip = ip
+		self.port = port
+		self.scale_factor = DEFAULT_SCALE_FACTOR if scale_factor is None else scale_factor
+		self.timeout = timeout
+		self.last_result = (False, 0)
+		self.check_in_rate = check_in_rate
+		self.load_images()
 
 	def get_conn_str(self: any) -> str:
 		"""
@@ -209,7 +209,8 @@ class Client:
 		"""
 
 		if self.is_local():
-			result = load_images(self.path, self.encoding_map, cache=self.use_cache, cache_location=self.cache_location)
+			print("Hello")
+			result = local_load_images(self.path, self.encoding_map, cache=self.use_cache, cache_location=self.cache_location)
 			return result
 		else: return True
 

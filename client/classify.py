@@ -35,6 +35,7 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 				face_recognition.load_image_file(os.path.join(path, file)),
 				model=ENCODING_MODEL
 			)
+			print(encodings)
 
 			encoding: np.ndarray = encodings[0]
 			add_cache(filename, encoding, cache_location)
@@ -49,7 +50,7 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 		encoding: np.ndarray = encodings[0]
 		mappings[filename] = encoding
 
-def load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: bool = True,
+def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: bool = True,
 	cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
 	"""
 	Loads in the image(s) from the given `path`.
@@ -72,6 +73,7 @@ def load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: boo
 	if os.path.isdir(path):
 		for _, _, files in os.walk(path):
 			for file in files:
+				print(file)
 				ext = file[file.rindex('.')+1:]
 
 				if ext in IMG_EXTs: check_and_add(path, file, mappings, cache_location, cache)
@@ -85,6 +87,7 @@ def load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: boo
 
 	else: raise RuntimeError(f'The path given ({path}) is not a directory or file.')
 
+	print(mappings)
 	return mappings
 
 def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> np.ndarray:
