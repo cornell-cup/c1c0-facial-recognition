@@ -50,7 +50,7 @@ if __name__ == '__main__':
 		matches = client.take_attendance(disp=DISPLAY)
 
 		matches = {match for matches_ in matches for match, _ in matches_}
-		data = ",".join(matches)
+		data = ", ".join(matches)
 		print(f'Data: {data}')
 
 		# sock.sendall(data.encode())

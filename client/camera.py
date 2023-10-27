@@ -90,7 +90,7 @@ class Camera:
 			if ret:
 				self.current_img: np.ndarray = img
 				fnd: bool = True
-			time.sleep(0.1)
+			time.sleep(0.2)
 		if not fnd: raise DeviceError(f'No frames received after {n_tries} tries.')
 
 	@staticmethod

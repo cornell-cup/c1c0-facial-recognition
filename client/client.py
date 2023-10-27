@@ -57,11 +57,16 @@ class Client:
 			res.append([(name, loc) for name, loc in results['matches'] if name != UNKNOWN_FACE])
 
 		def display(img: np.ndarray, results: List[List[Tuple[str, Tuple[int, int, int, int]]]]) -> None:
-			display: plt.AxesImage = plt.imshow(img)
-			plt.draw(); plt.pause(0.001)
-			# for name, (top, right, bottom, left) in results:
-				# cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+			display: plt.AxesImage = plt.imshow(img, cmap='hot')
+			texts: List[plt.Text] = []
 
+			for name, (top, right, bottom, left) in results:
+				text: plt.Text = plt.text(left - 10, bottom + 10, name)
+				texts.append(text);
+
+			plt.axis('off'); plt.draw(); plt.pause(0.001)
+			for text in texts: text.set_visible(False)
+				# cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
 		def process_frame(ind: int) -> None:
 			print(f'Taking picture {ind} and starting analyzation process.')
@@ -70,6 +75,7 @@ class Client:
 
 			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
 			workers[ind].start()
+			time.sleep(stall)
 
 		with self.camera as cam:
             # Attempting to start head rotation
@@ -77,19 +83,16 @@ class Client:
 
 			# Start processing pic 0
 			process_frame(0)
-			time.sleep(stall)
 			workers[0].join()
 			display(imgs[0], res[0])
 
 			# Start processing pic 1
 			process_frame(1)
-			time.sleep(stall)
 			workers[1].join()
 			display(imgs[1], res[1])
 
 			# Start processing pic 2
 			process_frame(2)
-			time.sleep(1)
 			workers[2].join(stall)
 			display(imgs[2], res[2])
 
