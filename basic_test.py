@@ -47,7 +47,6 @@ if __name__ == '__main__':
         # client.interpret_task(data)
 
         # For now, just always take attendance.
-		print('Taking attendance')
 		matches = client.take_attendance(disp=DISPLAY)
 
 		matches = {match for matches_ in matches for match, _ in matches_}

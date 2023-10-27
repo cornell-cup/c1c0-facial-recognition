@@ -48,27 +48,24 @@ class Client:
 		res: List[List[Tuple[str, Tuple[int, int, int, int]]]] = []
 		workers: List[threading.Thread] = []
 		imgs: List[np.ndarray] = []
+		stall: float = 1.
 		n_imgs: int = 3
 
 		def analyze(idx: int) -> None:
-			print(f'Analyzing image {idx}.')
+			print(f'Analyzed image {idx}: {imgs[idx][0][0]}, {imgs[idx][0][1]}, {imgs[idx][0][2]}, ...')
 			results: Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]] = self.analyze_faces(np.array(imgs[idx]))
 			res.append([(name, loc) for name, loc in results['matches'] if name != UNKNOWN_FACE])
 
 		def display(img: np.ndarray, results: List[List[Tuple[str, Tuple[int, int, int, int]]]]) -> None:
-			print("Display")
-			# plt.imshow(img, cmap='gray')
-			# cv2.namedWindow('C1C0 Facial Recognition', cv2.WINDOW_NORMAL)
+			display: plt.AxesImage = plt.imshow(img)
+			plt.draw(); plt.pause(0.001)
 			# for name, (top, right, bottom, left) in results:
 				# cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-			# cv2.imshow('C1C0 Facial Recognition', img)
-			# cv2.waitKey(1000)
-			# cv2.destroyAllWindows()
 
 		def process_frame(ind: int) -> None:
-			print(f'Taking picture {ind+1}.')
-			time.sleep(0.25)
+			print(f'Taking picture {ind} and starting analyzation process.')
+			time.sleep(stall)
 			imgs.append(cam.adjust_read())
 
 			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
@@ -76,36 +73,29 @@ class Client:
 
 		with self.camera as cam:
             # Attempting to start head rotation
-			rot_time = 3
 			rotate.init_serial()
 
 			# Start processing pic 0
 			process_frame(0)
-			time.sleep(1)
-
-			print('C1C0 TURN LEFT.')
-			time.sleep(1)
+			time.sleep(stall)
 			workers[0].join()
+			display(imgs[0], res[0])
 
 			# Start processing pic 1
 			process_frame(1)
-			display(imgs[0], res[0])
-
-			print('C1C0 TURN RIGHT')
-			time.sleep(1)
+			time.sleep(stall)
 			workers[1].join()
+			display(imgs[1], res[1])
 
 			# Start processing pic 2
 			process_frame(2)
-			display(imgs[1], res[1])
-
 			time.sleep(1)
-			workers[2].join()
+			workers[2].join(stall)
 			display(imgs[2], res[2])
 
 		return res
 
-	def __init__(self: any, local: 'Optional[bool]' = DEFAULT_LOCAL, path: str = DEFAULT_PATH,
+	def __init__(self: any, local: Optional[bool] = DEFAULT_LOCAL, path: str = DEFAULT_PATH,
 				 cache: bool = DEFAULT_CACHE, cache_location: str = DEFAULT_CACHE_LOCATION,
                  mappings = None, ip = DEFAULT_HOST, port = DEFAULT_PORT, dev: str = DEFAULT_DEVICE,
 				 scale_factor: float = DEFAULT_SCALE_FACTOR, timeout: float = DEFAULT_TIMEOUT,

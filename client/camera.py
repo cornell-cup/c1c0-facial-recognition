@@ -45,7 +45,7 @@ class Camera:
 
 	def __exit__(self: any, exc_type: any, exc_val: any, exc_tb: any) -> 'Camera':
 		"""
-		Exit process for whenever errors occur.
+		Exit process for whenever main thread wants to reconnect with child.
 		"""
 
 		self.reader.join()
@@ -82,13 +82,16 @@ class Camera:
 		Attempts to read in frames from camera until success.
 		"""
 
-		while True:
-			n_tries: int = self.n_tries if n_tries is None else n_tries
-			for _ in range(n_tries):
-				ret: bool; img: np.ndarray
-				ret, img = self.dev.read()
-				if ret: self.current_img: np.ndarray = img;
-			raise DeviceError(f'No frames received after {n_tries} tries.')
+		n_tries: int = self.n_tries if n_tries is None else n_tries
+		fnd: bool = False
+		for _ in range(n_tries):
+			ret: bool; img: np.ndarray
+			ret, img = self.dev.read()
+			if ret:
+				self.current_img: np.ndarray = img
+				fnd: bool = True
+			time.sleep(0.1)
+		if not fnd: raise DeviceError(f'No frames received after {n_tries} tries.')
 
 	@staticmethod
 	def find_camera(rgb_only: bool = True, n_devices: int = 10, n_tries: int = 30) -> int:
