@@ -48,17 +48,14 @@ if __name__ == '__main__':
 
         # For now, just always take attendance.
 		print('Taking attendance')
-        # matches = client.take_attendance(disp=DISPLAY)
+		matches = client.take_attendance(disp=DISPLAY)
 
-        # matches = {match for matches_ in matches for match, _ in matches_}
-        # data = ",".join(matches)
-		data = None
-		# print(f'Sending: {data}')
+		matches = {match for matches_ in matches for match, _ in matches_}
+		data = ",".join(matches)
+		print(f'Data: {data}')
 
 		# sock.sendall(data.encode())
-
-	finally:
-		print("Finally")
 		# sock.close()
+	finally: pass
 
-	print('Test presumably passed.' if data else 'Test presumably failed.')
+	print('Test presumable passed.' if data else 'Test presumably failed.')

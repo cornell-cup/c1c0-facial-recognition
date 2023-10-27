@@ -1,5 +1,6 @@
 from requests import get, post, HTTPError, ConnectionError
 import time, threading, json, cv2, logging
+import matplotlib.pyplot as plt
 import numpy as np
 
 from client.classify import check_faces, local_load_images, check_and_add
@@ -55,21 +56,23 @@ class Client:
 			res.append([(name, loc) for name, loc in results['matches'] if name != UNKNOWN_FACE])
 
 		def display(img: np.ndarray, results: List[List[Tuple[str, Tuple[int, int, int, int]]]]) -> None:
-			cv2.namedWindow('C1C0 Facial Recognition', cv2.WINDOW_NORMAL)
-			for name, (top, right, bottom, left) in results:
-				cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+			print("Display")
+			# plt.imshow(img, cmap='gray')
+			# cv2.namedWindow('C1C0 Facial Recognition', cv2.WINDOW_NORMAL)
+			# for name, (top, right, bottom, left) in results:
+				# cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-			cv2.imshow('C1C0 Facial Recognition', img)
-			cv2.waitKey(1000)
-			cv2.destroyAllWindows()
+			# cv2.imshow('C1C0 Facial Recognition', img)
+			# cv2.waitKey(1000)
+			# cv2.destroyAllWindows()
 
 		def process_frame(ind: int) -> None:
-			print(f'\nTaking pic {i+1}.\n')
+			print(f'Taking picture {ind+1}.')
 			time.sleep(0.25)
-			imgs.append(cam.read())
+			imgs.append(cam.adjust_read())
 
-			workers.append(threading.Thread(target=analyze, args=(i,), daemon=True))
-			workers[i].start()
+			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
+			workers[ind].start()
 
 		with self.camera as cam:
             # Attempting to start head rotation
@@ -80,7 +83,7 @@ class Client:
 			process_frame(0)
 			time.sleep(1)
 
-			print('C1C0 TURN LEFT')
+			print('C1C0 TURN LEFT.')
 			time.sleep(1)
 			workers[0].join()
 
@@ -209,7 +212,6 @@ class Client:
 		"""
 
 		if self.is_local():
-			print("Hello")
 			result = local_load_images(self.path, self.encoding_map, cache=self.use_cache, cache_location=self.cache_location)
 			return result
 		else: return True

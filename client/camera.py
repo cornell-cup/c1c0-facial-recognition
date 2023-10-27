@@ -87,7 +87,7 @@ class Camera:
 			for _ in range(n_tries):
 				ret: bool; img: np.ndarray
 				ret, img = self.dev.read()
-				if ret: self.current_img: np.ndarray = img
+				if ret: self.current_img: np.ndarray = img;
 			raise DeviceError(f'No frames received after {n_tries} tries.')
 
 	@staticmethod

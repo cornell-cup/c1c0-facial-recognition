@@ -5,4 +5,5 @@ face_recognition==1.3.0
 Pillow==8.4.0
 num2words==0.5.13
 typing==3.7.4.3
-serial==0.0.97
+pyserial==3.5
+matplotlib==3.3.4
