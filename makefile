@@ -1,11 +1,17 @@
-run:
-	venv/bin/python -m r2_facial_recognition.client -l -D
+all: install
+	sudo venv/bin/python main.py
 
-test:
-	sudo venv/bin/python basic_test.py
+cache: install
+	sudo venv/bin/python cache.py
 
-venv:
-	python3.6 -m venv venv
+clean: 
+	sudo rm -rf .cache/ client/__pycache/
 
 install: venv
 	venv/bin/pip install -r requirements.txt
+	sudo apt-get install imagemagick
+
+venv:
+	sudo rm -rf venv/
+	python3.6 -m venv/ venv/
+

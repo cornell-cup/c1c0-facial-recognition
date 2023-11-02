@@ -50,7 +50,7 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 		mappings[filename] = encoding
 
 def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: bool = True,
-	cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
+					  cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
 	"""
 	Loads in the image(s) from the given `path`.
 
@@ -72,7 +72,7 @@ def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cach
 	if os.path.isdir(path):
 		for _, _, files in os.walk(path):
 			for file in files:
-				ext = file[file.rindex('.')+1:]
+				ext: str = file[file.rindex('.')+1:]
 
 				if ext in IMG_EXTs: check_and_add(path, file, mappings, cache_location, cache)
 				else: print(f'Ignoring file: {file}, with extension: {ext} not in {IMG_EXTs}')
@@ -84,6 +84,33 @@ def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cach
 		check_and_add(*os.path.split(path), mappings, cache_location, cache)
 
 	else: raise RuntimeError(f'The path given ({path}) is not a directory or file.')
+
+	return mappings
+
+def local_load_cache(mappings: Mapping[str, np.ndarray] = None, cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
+	"""
+	Loads in the encodings from the given `path`.
+
+	PARAMETERS
+	----------
+	mappings - The mappings to update with the added filenames.
+	cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+
+	RETURNS
+    -------
+	A Mapping of names to encodings. The encoding is a numpy array representation of an individual face.
+	"""
+
+	mappings: Mapping[str, np.ndarray] = {} if mappings is None else mappings
+
+	for _, _, files in os.walk(cache_location):
+		for file in files:
+			ext: str = file[file.rindex('.')+1:]
+			filename: str = file[:file.rindex('.')]
+			print(filename, ext)
+
+			if ext == ENCODING_EXT: mappings[filename] = get_cached(filename, cache_location)
+			else: print("Ignoring file: {file}, with extension: {ext} not equal to {ENCODING_EXT}")
 
 	return mappings
 
@@ -120,7 +147,7 @@ def add_cache(name: str, encoding: np.ndarray, cache_location: str = DEFAULT_CAC
 	"""
 	os.makedirs(cache_location, exist_ok=True)
 
-	with open(os.path.join(cache_location, f'{name}.encoding'), 'wb+') as f:
+	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'wb+') as f:
 		f.seek(0); f.truncate()
 		f.write(encoding.tobytes())
 

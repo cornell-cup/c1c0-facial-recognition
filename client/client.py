@@ -3,7 +3,7 @@ import time, threading, json, cv2, logging
 import matplotlib.pyplot as plt
 import numpy as np
 
-from client.classify import check_faces, local_load_images, check_and_add
+from client.classify import check_faces, local_load_images, local_load_cache, check_and_add
 from client.camera import Camera
 import client.rotation as rotate
 from client.config import *
@@ -58,24 +58,22 @@ class Client:
 
 		def display(img: np.ndarray, results: List[List[Tuple[str, Tuple[int, int, int, int]]]]) -> None:
 			display: plt.AxesImage = plt.imshow(img, cmap='hot')
-			texts: List[plt.Text] = []
 
 			for name, (top, right, bottom, left) in results:
-				text: plt.Text = plt.text(left - 10, bottom + 10, name)
-				texts.append(text);
+				text: str = "Hello " + name + "!"
+				bbox = dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8))
+				plt.text(left, bottom, text, size=12, ha="center", va="center", bbox=bbox)
 
-			plt.axis('off'); plt.draw(); plt.pause(0.001)
-			for text in texts: text.set_visible(False)
-				# cv2.putText(img, name, (left - 20, bottom + 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+			plt.axis('off'); plt.draw(); plt.pause(5)
 
 		def process_frame(ind: int) -> None:
 			print(f'Taking picture {ind} and starting analyzation process.')
-			time.sleep(stall)
+			# time.sleep(stall)
 			imgs.append(cam.adjust_read())
 
 			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
 			workers[ind].start()
-			time.sleep(stall)
+			# time.sleep(stall)
 
 		with self.camera as cam:
             # Attempting to start head rotation
@@ -87,19 +85,19 @@ class Client:
 			display(imgs[0], res[0])
 
 			# Start processing pic 1
-			process_frame(1)
-			workers[1].join()
-			display(imgs[1], res[1])
+			# process_frame(1)
+			# workers[1].join()
+			# display(imgs[1], res[1])
 
 			# Start processing pic 2
-			process_frame(2)
-			workers[2].join(stall)
-			display(imgs[2], res[2])
+			# process_frame(2)
+			# workers[2].join(stall)
+			# display(imgs[2], res[2])
 
 		return res
 
 	def __init__(self: any, local: Optional[bool] = DEFAULT_LOCAL, path: str = DEFAULT_PATH,
-				 cache: bool = DEFAULT_CACHE, cache_location: str = DEFAULT_CACHE_LOCATION,
+				 load: bool = DEFAULT_LOAD, cache: bool = DEFAULT_CACHE, cache_location: str = DEFAULT_CACHE_LOCATION,
                  mappings = None, ip = DEFAULT_HOST, port = DEFAULT_PORT, dev: str = DEFAULT_DEVICE,
 				 scale_factor: float = DEFAULT_SCALE_FACTOR, timeout: float = DEFAULT_TIMEOUT,
                  check_in_rate: float = DEFAULT_CHECKIN_RATE) -> 'Client':
@@ -111,6 +109,7 @@ class Client:
 		self.task_map = { 'learn_face': self.learn_face, 'take_attendance': self.take_attendance }
 		self.local = local
 		self.path = path
+		self.load_img = load
 		self.use_cache = cache
 		self.cache_location = cache_location
 		self.encoding_map = mappings if mappings is not None else {}
@@ -120,7 +119,8 @@ class Client:
 		self.timeout = timeout
 		self.last_result = (False, 0)
 		self.check_in_rate = check_in_rate
-		self.load_images()
+		if (load): self.load_images()
+		if (cache): self.load_cache()
 
 	def get_conn_str(self: any) -> str:
 		"""
@@ -200,14 +200,23 @@ class Client:
 
 	def load_images(self: any) -> bool:
 		"""
-		Loads images from the specified cache directory is possible, returns the result
-		of loading those images.
+		Loads images from the specified path if possible, returns true if images are loaded.
 		"""
 
 		if self.is_local():
 			result = local_load_images(self.path, self.encoding_map, cache=self.use_cache, cache_location=self.cache_location)
-			return result
-		else: return True
+			return result is not None
+		else: return False
+
+	def load_cache(self: any) -> bool:
+		"""
+		Loads encodings from the specified cache directory, returns true if encodings are loaded.
+		"""
+
+		if self.is_local():
+			result = local_load_cache(self.encoding_map, cache_location=self.cache_location)
+			return result is not None
+		else: return False
 
 	def add_face(self: any, img: np.ndarray) -> None:
 		"""

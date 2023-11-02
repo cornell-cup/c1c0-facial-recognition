@@ -6,14 +6,10 @@ from client.config import *
 from client.rotation import *
 
 # Computer architecture related settings.
-CACHE_LOCATION: str = '.cache'
-PATH: str = 'resources/people'
 IP: str = '127.0.0.1'
 PORT: int = 1233
 SLEEP_TIME: float = 0.5
-DEVICE: int = -1
-LOCAL = True
-DISPLAY = True
+DISPLAY: bool = True
 
 def accept_data() -> None:
 	"""
@@ -36,7 +32,7 @@ def accept_data() -> None:
 		except OSError: pass
 
 if __name__ == '__main__':
-	client: Client = Client(path=PATH, ip=IP, port=PORT, cache_location=CACHE_LOCATION, dev=None)
+	client: Client = Client(ip=IP, load=DEFAULT_LOAD, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
 	# t0: threading.Thread = threading.Thread(target=accept_data, daemon=True); t0.start()
 	# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
