@@ -107,10 +107,9 @@ def local_load_cache(mappings: Mapping[str, np.ndarray] = None, cache_location: 
 		for file in files:
 			ext: str = file[file.rindex('.')+1:]
 			filename: str = file[:file.rindex('.')]
-			print(filename, ext)
 
 			if ext == ENCODING_EXT: mappings[filename] = get_cached(filename, cache_location)
-			else: print("Ignoring file: {file}, with extension: {ext} not equal to {ENCODING_EXT}")
+			else: print(f"Ignoring file: {file}, with extension: {ext} not equal to {ENCODING_EXT}")
 
 	return mappings
 

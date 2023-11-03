@@ -1,7 +1,7 @@
-all: install
+all:
 	sudo venv/bin/python main.py
 
-cache: install
+cache:
 	sudo venv/bin/python cache.py
 
 clean: 

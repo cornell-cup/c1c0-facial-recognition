@@ -32,7 +32,7 @@ def accept_data() -> None:
 		except OSError: pass
 
 if __name__ == '__main__':
-	client: Client = Client(ip=IP, load=DEFAULT_LOAD, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
+	client: Client = Client(ip=IP, load=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
 	# t0: threading.Thread = threading.Thread(target=accept_data, daemon=True); t0.start()
 	# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

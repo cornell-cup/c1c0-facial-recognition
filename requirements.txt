@@ -7,3 +7,4 @@ num2words==0.5.13
 typing==3.7.4.3
 pyserial==3.5
 matplotlib==3.3.4
+bs4==0.0.1
