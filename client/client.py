@@ -8,7 +8,7 @@ from client.camera import Camera
 import client.rotation as rotate
 from client.config import *
 
-from typing import Optional, List, Mapping, Tuple, Callable, Sized, Iterable
+from typing import Optional, List, Mapping, Tuple, Callable, Sized, Iterable, Set
 
 # Config values
 UNKNOWN_FACE: str = DEFAULT_UNKNOWN_FACE_ID
@@ -22,8 +22,9 @@ class Client:
 
 	camera: Camera
 	disp_lock: threading.Lock = threading.Lock()
+	face_number: int = 0
 
-	def learn_face(self: any, name: str, disp: bool = False, best_of_n: int = 3, *_, **__):
+	def learn_face(self: any, disp: bool = False, best_of_n: int = 3, *_, **__):
 		"""
 		Given a name, will take a picture and create a mapping from that name to the
 		approriate facial encodings.
@@ -33,13 +34,13 @@ class Client:
 		name - Name of the face in the image.
 		"""
 
-		with self.camera:
-			img: np.ndarray = self.camera.read()
-			detected_face = check_faces(img, self.encoding_map)
+		with self.camera as cam:
+			img: np.ndarray = cam.read()
+			detected_face: List[Tuple[str, Tuple[int, int, int, int]]] = check_faces(img, self.encoding_map)
 
 			if detected_face != UNKNOWN_FACE: return
 
-	def take_attendance(self, disp: bool = False, *_, **__) -> List[List[Tuple[str, Tuple[int, int, int, int]]]]:
+	def take_attendance(self, disp: bool = False, *_, **__) -> List[str]:
 		"""
 		Takes a series of pictures as C1C0 turns, makes a request to the backend for each picture and unions the
 		results of facial recognition. Outputs the matches and asks for confirmation from chatbot.
@@ -52,37 +53,42 @@ class Client:
 		n_imgs: int = 3
 
 		def analyze(idx: int) -> None:
-			print(f'Analyzed image {idx}: {imgs[idx][0][0]}, {imgs[idx][0][1]}, {imgs[idx][0][2]}, ...')
+			print(f'Analyzing image {idx}: {imgs[idx][0][0]}, {imgs[idx][0][1]}, {imgs[idx][0][2]}, ...')
 			results: Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]] = self.analyze_faces(np.array(imgs[idx]))
 			res.append([(name, loc) for name, loc in results['matches'] if name != UNKNOWN_FACE])
 
-		def display(img: np.ndarray, results: List[List[Tuple[str, Tuple[int, int, int, int]]]]) -> None:
-			display: plt.AxesImage = plt.imshow(img, cmap='hot')
+		def display(img: np.ndarray, results: List[Tuple[str, Tuple[int, int, int, int]]]) -> None:
+			display: plt.AxesImage = plt.imshow(img)
+			text: str = "Hello ";
+			cleft, cbottom = -1, -1
 
-			for name, (top, right, bottom, left) in results:
-				text: str = "Hello " + name + "!"
-				bbox = dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8))
-				plt.text(left, bottom, text, size=12, ha="center", va="center", bbox=bbox)
+			for name, (_, _, bottom, left) in results:
+				text += name; text += ", "
+				if (cleft == -1): cleft = left
+				if (cbottom == -1): cbottom = bottom
 
-			plt.axis('off'); plt.draw(); plt.pause(5)
+			if cbottom != -1 and cleft != -1: text = text[:-2] + "!"
+			bbox = dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8))
+
+			plt.text(cleft + 10, cbottom + 10, text, size=12, ha="center", va="center", bbox=bbox)
+			plt.axis('off'); plt.draw(); plt.pause(25 * stall); plt.close()
 
 		def process_frame(ind: int) -> None:
 			print(f'Taking picture {ind} and starting analyzation process.')
-			# time.sleep(stall)
+			time.sleep(stall)
 			imgs.append(cam.adjust_read())
 
 			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
 			workers[ind].start()
-			# time.sleep(stall)
 
 		with self.camera as cam:
             # Attempting to start head rotation
-			rotate.init_serial()
+			# rotate.init_serial()
 
 			# Start processing pic 0
 			process_frame(0)
 			workers[0].join()
-			display(imgs[0], res[0])
+			if (disp): display(imgs[0], res[0])
 
 			# Start processing pic 1
 			# process_frame(1)
@@ -94,9 +100,11 @@ class Client:
 			# workers[2].join(stall)
 			# display(imgs[2], res[2])
 
-		return res
+		matches: Set[str] = {match for matches in res for match, _ in matches}
+		formatted: str = "[" + ", ".join(matches) + "]"
+		print(f"Recognized: {formatted}"); return matches
 
-	def __init__(self: any, local: Optional[bool] = DEFAULT_LOCAL, path: str = DEFAULT_PATH,
+	def __init__(self: any, local: Optional[bool] = DEFAULT_LOCAL, path: str = DEFAULT_PATH, open: bool = DEFAULT_OPEN,
 				 load: bool = DEFAULT_LOAD, cache: bool = DEFAULT_CACHE, cache_location: str = DEFAULT_CACHE_LOCATION,
                  mappings = None, ip = DEFAULT_HOST, port = DEFAULT_PORT, dev: str = DEFAULT_DEVICE,
 				 scale_factor: float = DEFAULT_SCALE_FACTOR, timeout: float = DEFAULT_TIMEOUT,
@@ -105,8 +113,11 @@ class Client:
 		Initializes an instance of client with a lot of default values and configurations.
 		"""
 
-		self.camera = Camera(dev)
-		self.task_map = { 'learn_face': self.learn_face, 'take_attendance': self.take_attendance }
+		self.camera = Camera(dev) if open else None
+		self.task_map = {
+			'learn': (lambda: self.learn_face(disp=True)),
+			'attendance': (lambda: self.take_attendance(disp=True))
+		}
 		self.local = local
 		self.path = path
 		self.load_img = load
@@ -155,6 +166,7 @@ class Client:
 		Returns the function corresponding to the task name given.
 		"""
 
+		self.task_map.setdefault(task, lambda: print("Unrecognized command, please try again"))
 		return self.task_map[task]
 
 	def set_local(self: any, filepath: str, force: bool = True) -> None:
@@ -184,7 +196,7 @@ class Client:
 
 	def analyze_faces(self: any, img: np.ndarray) -> Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]:
 		"""
-		Resizes the current image and classifies it to a face if possible. Local vs remote just 
+		Resizes the current image and classifies it to a face if possible. Local vs remote just
 		specifies different locations to compare images to.
 		"""
 

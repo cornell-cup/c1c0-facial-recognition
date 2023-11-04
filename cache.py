@@ -13,6 +13,16 @@ PORT: int          = 1233
 EXT: str           = ".JPG"
 IP: str            = "127.0.0.1"
 
+def convert(urlname: str) -> str:
+	rmwords: List[str] = ["C1C0CS", "BIZCOMM", "MINIBOTCS", "ECE"]
+	for rmword in rmwords: urlname = urlname.replace(rmword, "")
+
+	for i in range(1, len(urlname)):
+		if urlname[i].isupper():
+			urlname = urlname[:i] + " " + urlname[i:]
+			break
+	return urlname.strip()
+
 if __name__ == '__main__':
 	os.makedirs(DOWNLOAD_PATH, exist_ok=True)
 	os.makedirs(OUTPUT_PATH, exist_ok=True)
@@ -28,7 +38,8 @@ if __name__ == '__main__':
 	for i, url in enumerate(urls):
 		urlname: str = re.search(r'/([\w_-]+[.]JPG)$', url).group(1)
 		downloadname: str = DOWNLOAD_PATH + urlname[:-4] + ".jpg"
-		filename: str = OUTPUT_PATH + urlname[:-4] + ".jpg"
+
+		filename: str = OUTPUT_PATH + convert(urlname[:-4]) + ".jpg"
 
 		with open(downloadname, 'wb') as f:
 			if 'http' not in url: url = '{}{}'.format(SITE, url)
@@ -39,7 +50,7 @@ if __name__ == '__main__':
 		print(f"Finished downloading image {i:02}: {url}")
 
 	print("Started loading all images onto cache.")
-	client: Client = Client(path=OUTPUT_PATH, ip=IP, load=DEFAULT_LOAD, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
+	client: Client = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
 	print("Finished loading all images onto cache.")
 
 	shutil.rmtree(DOWNLOAD_PATH)

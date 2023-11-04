@@ -131,7 +131,7 @@ def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> np.nd
 	np.ndarray - The encoding as a np.ndarray.
 	"""
 
-	with open(os.path.join(cache_location, f'{name}.encoding'), 'rb') as file:
+	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'rb') as file:
 		return np.frombuffer(file.read())
 
 def add_cache(name: str, encoding: np.ndarray, cache_location: str = DEFAULT_CACHE_LOCATION) -> None:

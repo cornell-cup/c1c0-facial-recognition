@@ -25,10 +25,9 @@ class Camera:
               value, DEFAULT_DEVICE.
         """
 
-		self._dev: int  = Camera.find_camera() if dev is None else dev
-		self.dev: cv2.VideoCapture = cv2.VideoCapture(self._dev)
+		self._dev: str = Camera.find_camera() if dev is None else dev
+		self.dev: cv2.VideoCapture = cv2.VideoCapture(self._dev, cv2.CAP_GSTREAMER)
 		self.n_tries: int = n_tries
-		self.reader: Thread = threading.Thread(target=self.read_image)
 		self.current_img: Optional[np.ndarray] = None
 
 	def __enter__(self: any) -> 'Camera':
@@ -40,7 +39,8 @@ class Camera:
 			if not self.dev.open(self._dev):
 				raise DeviceError(f'Unable to open device at index: {self._dev}')
 
-		self.reader.start()
+		self.reader: Thread = threading.Thread(target=self.read_image)
+		if not self.reader.is_alive(): self.reader.start()
 		return self
 
 	def __exit__(self: any, exc_type: any, exc_val: any, exc_tb: any) -> 'Camera':
@@ -48,7 +48,7 @@ class Camera:
 		Exit process for whenever main thread wants to reconnect with child.
 		"""
 
-		self.reader.join()
+		if self.reader.is_alive(): self.reader.join()
 		self.dev.release()
 
 	def adjust_read(self: any, timeout: int = 5) -> None:
