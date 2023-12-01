@@ -9,17 +9,59 @@ from typing import Mapping, Tuple, List, MutableMapping
 ENCODING_MODEL: str = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL: str = DEFAULT_NN_MODEL
 UNKNOWN_FACE: str = DEFAULT_UNKNOWN_FACE_ID
+NUM_JITTERS: int = DEFAULT_NUM_JITTERS
+NUM_UPSAMPLE: int = DEFAULT_NUM_UPSAMPLE
 
-def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location: str = DEFAULT_CACHE_LOCATION, cache: bool = True) -> None:
+def check_and_add_img(img: np.ndarray, name: str, mappings: MutableMapping, cache: bool = True,
+                        cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
+    """
+    Helper function that checks if the encoding is already cached for an img, and if so
+    adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
+    it in the mappings. File names are important for it to distinguish which user is which.
+
+    PARAMETERS
+    ----------
+    img - The image as a np.ndarray.
+    name - The name of the person in the image.
+    mappings - The mappings to update with the added filenames.
+    cache - Whether to cache the files as they are loaded.
+    cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+    """
+
+    if cache:
+        # Following EAFP idiom.
+        try: mappings[name] = get_cached(name, cache_location)
+        except OSError:
+            # DNE in cache
+            encodings: List[np.ndarray] = face_recognition.face_encodings(
+                img, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
+
+            if (len(encodings) == 0): print(f'No faces found in {name}.'); return
+            encoding: np.ndarray = encodings[0]
+            add_cache(name, encoding, cache_location)
+            mappings[name] = encoding
+    else:
+        encodings: List[np.ndarray] = face_recognition.face_encodings(
+            img, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
+
+        if (len(encodings) == 0): print(f'No faces found in {name}.'); return
+        encoding: np.ndarray = encodings[0]
+        mappings[name] = encoding
+
+def check_and_add_file(path: str, file: str, mappings: MutableMapping, cache: bool = True,
+				  cache_location: str = DEFAULT_CACHE_LOCATION,) -> None:
 	"""
-	Helper function that checks if the encoding is already generated, and if so adds it to
-	the mappings. Otherwise, it will generate an encoding for the face, and store it in
-	the mappings. File names are important for it to distinguish which user is which.
+	Helper function that checks if the encoding is already cached for a file, and if so
+	adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
+	it in the mappings. File names are important for it to distinguish which user is which.
 
     PARAMETERS
     ----------
     path - The path as a str to the directory where the file is located.
     file - The filename.
+	mappings - The mappings to update with the added filenames.
+    cache - Whether to cache the files as they are loaded.
+    cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
     """
 
 	try: filename: str = file[:file.rindex('.')]
@@ -33,6 +75,7 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 			# DNE in cache
 			encodings: List[np.ndarray] = face_recognition.face_encodings(
 				face_recognition.load_image_file(os.path.join(path, file)),
+                num_jitters=NUM_JITTERS,
 				model=ENCODING_MODEL
 			)
 
@@ -41,13 +84,14 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 			encoding: np.ndarray = encodings[0]
 			add_cache(filename, encoding, cache_location)
 			mappings[filename] = encoding
-
 	else:
 		encodings: List[np.ndarray] = face_recognition.face_encodings(
 			face_recognition.load_image_file(os.path.join(path, file)),
+            num_jitters=NUM_JITTERS,
 			model=ENCODING_MODEL
         )
 
+		if (len(encodings) == 0): print(f'No faces found in {file}.'); return
 		encoding: np.ndarray = encodings[0]
 		mappings[filename] = encoding
 
@@ -76,14 +120,14 @@ def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cach
 			for file in files:
 				ext: str = file[file.rindex('.')+1:]
 
-				if ext in IMG_EXTs: check_and_add(path, file, mappings, cache_location, cache)
+				if ext in IMG_EXTs: check_and_add_file(path, file, mappings, cache_location, cache)
 				else: print(f'Ignoring file: {file}, with extension: {ext} not in {IMG_EXTs}')
 
 	elif os.path.isfile(path):
 		ext = path[path.rindex('.')+1:]
 
 		if ext not in IMG_EXTs: print('File being loaded, with extension: {ext} not in {IMG_EXTs}')
-		check_and_add(*os.path.split(path), mappings, cache_location, cache)
+		check_and_add_file(*os.path.split(path), mappings, cache_location, cache)
 
 	else: raise RuntimeError(f'The path given ({path}) is not a directory or file.')
 
@@ -172,18 +216,19 @@ def check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) -> List[Tup
 	except AttributeError as exc: raise ValueError(f'Expected a Mapping type object. Got \'{mappings}\' instead.') from exc
 
 	known_encodings: List[np.ndarray] = list(map(lambda x: x[1], ordered_map))
-	if not known_encodings: raise ValueError(f'No known encodings! known_encodings = {known_encodings}')
 
-	unknown_face_locations: List[any] = face_recognition.face_locations(img, model=FACE_DETECT_MODEL)
-	unknown_face_encodings: List[any] = face_recognition.face_encodings(img, unknown_face_locations, model=ENCODING_MODEL)
+	unknown_face_locations: List[any] = face_recognition.face_locations(img,
+        number_of_times_to_upsample=NUM_UPSAMPLE, model=FACE_DETECT_MODEL)
+	unknown_face_encodings: List[any] = face_recognition.face_encodings(img,
+		unknown_face_locations, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
 
 	identities: List[str] = []
 	for unknown_face in unknown_face_encodings:
-		matches: List[bool] = face_recognition.compare_faces(known_encodings, unknown_face)
+		matches: List[bool] = face_recognition.compare_faces(known_encodings, unknown_face, tolerance=TOLERANCE)
 		face_distances: np.ndarray = face_recognition.face_distance(known_encodings, unknown_face)
 
-		closest_idx: int = np.argmin(face_distances)
-		name: str = ordered_map[closest_idx][0] if matches[closest_idx] else UNKNOWN_FACE
+		idx: int = np.argmin(face_distances) if len(face_distances) > 0 else -1
+		name: str = ordered_map[idx][0] if idx != -1 and matches[idx] else UNKNOWN_FACE
 		identities.append(name)
 
 	all_faces: List[Tuple[str, Tuple[int, int, int, int]]] = list(zip(identities, unknown_face_locations))

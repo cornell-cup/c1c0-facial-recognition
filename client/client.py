@@ -3,12 +3,12 @@ import time, threading, json, cv2, logging
 import matplotlib.pyplot as plt
 import numpy as np
 
-from client.classify import check_faces, local_load_images, local_load_cache, check_and_add
+from client.classify import check_faces, local_load_images, local_load_cache, check_and_add_file, check_and_add_img
 from client.camera import Camera
 import client.rotation as rotate
 from client.config import *
 
-from typing import Optional, List, Mapping, Tuple, Callable, Sized, Iterable, Set
+from typing import Optional, List, Mapping, Tuple, Set
 
 # Config values
 UNKNOWN_FACE: str = DEFAULT_UNKNOWN_FACE_ID
@@ -23,8 +23,23 @@ class Client:
 	camera: Camera
 	disp_lock: threading.Lock = threading.Lock()
 	face_number: int = 0
+	stall: float = 1.0
 
-	def learn_face(self: any, disp: bool = False, best_of_n: int = 3, *_, **__):
+	def display(self: any, img: np.ndarray, results: List[Tuple[str, Tuple[int, int, int, int]]]) -> None:
+		for i, (name, (top, right, bottom, left)) in enumerate(results):
+			top = int(top / self.scale_factor);       right = int(right / self.scale_factor)
+			bottom = int(bottom / self.scale_factor); left = int(left / self.scale_factor)
+			color: Tuple[int, int, int] = COLORS[i % len(COLORS)];
+
+			cv2.rectangle(img, (left, top), (right, bottom), color, 2)
+			cv2.putText(img, name, (left, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, color, 2)
+
+		WINDOW_NAME: str = 'Recognized Faces: Frame ' + str(Client.face_number);
+		cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_AUTOSIZE); Client.face_number += 1
+		cv2.imshow(WINDOW_NAME, img); cv2.waitKey(0)
+		cv2.waitKey(1); cv2.destroyWindow(WINDOW_NAME); cv2.waitKey(1)
+
+	def learn_face(self: any, names: List[str], disp: bool = False, *_, **__) -> List[str]:
 		"""
 		Given a name, will take a picture and create a mapping from that name to the
 		approriate facial encodings.
@@ -32,77 +47,49 @@ class Client:
 		PARAMETERS
 		----------
 		name - Name of the face in the image.
+		disp - Whether or not to display the image with bounding boxes.
+		"""
+		name = ' '.join(names) if len(names) > 0 else "Face Number " + str(Client.face_number)
+
+		with self.camera as cam:
+			print('Taking picture and starting analyzation process.')
+			time.sleep(self.stall); img: np.ndarray = cam.adjust_read()
+
+			print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
+			check_and_add_img(img, name, self.encoding_map, cache=self.use_cache, cache_location=self.cache_location)
+			results: any = self.analyze_faces(img)['matches']
+			pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
+
+			if (disp): self.display(img, results)
+
+		names: Set[str] = {name for name, _ in pruned}
+		formatted: str = "[" + ", ".join(names) + "]"
+		print(f"Recognized: {formatted}"); return names
+
+
+	def take_attendance(self: any, disp: bool = False, *_, **__) -> List[str]:
+		"""
+		Takes a picture and returns a list of names of people recognized in the image.
+		Also displays the image with bounding boxes if disp is true.
+
+		PARAMETERS
+		----------
+		disp - Whether or not to display the image with bounding boxes.
 		"""
 
 		with self.camera as cam:
-			img: np.ndarray = cam.read()
-			detected_face: List[Tuple[str, Tuple[int, int, int, int]]] = check_faces(img, self.encoding_map)
+			print('Taking picture and starting analyzation process.')
+			time.sleep(self.stall); img: np.ndarray = cam.adjust_read()
 
-			if detected_face != UNKNOWN_FACE: return
+			print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
+			results: any = self.analyze_faces(img)['matches']
+			pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
 
-	def take_attendance(self, disp: bool = False, *_, **__) -> List[str]:
-		"""
-		Takes a series of pictures as C1C0 turns, makes a request to the backend for each picture and unions the
-		results of facial recognition. Outputs the matches and asks for confirmation from chatbot.
-		"""
+			if (disp): self.display(img, results)
 
-		res: List[List[Tuple[str, Tuple[int, int, int, int]]]] = []
-		workers: List[threading.Thread] = []
-		imgs: List[np.ndarray] = []
-		stall: float = 1.
-		n_imgs: int = 3
-
-		def analyze(idx: int) -> None:
-			print(f'Analyzing image {idx}: {imgs[idx][0][0]}, {imgs[idx][0][1]}, {imgs[idx][0][2]}, ...')
-			results: Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]] = self.analyze_faces(np.array(imgs[idx]))
-			res.append([(name, loc) for name, loc in results['matches'] if name != UNKNOWN_FACE])
-
-		def display(img: np.ndarray, results: List[Tuple[str, Tuple[int, int, int, int]]]) -> None:
-			display: plt.AxesImage = plt.imshow(img)
-			text: str = "Hello ";
-			cleft, cbottom = -1, -1
-
-			for name, (_, _, bottom, left) in results:
-				text += name; text += ", "
-				if (cleft == -1): cleft = left
-				if (cbottom == -1): cbottom = bottom
-
-			if cbottom != -1 and cleft != -1: text = text[:-2] + "!"
-			bbox = dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8))
-
-			plt.text(cleft + 10, cbottom + 10, text, size=12, ha="center", va="center", bbox=bbox)
-			plt.axis('off'); plt.draw(); plt.pause(5 * stall); plt.close()
-
-		def process_frame(ind: int) -> None:
-			print(f'Taking picture {ind} and starting analyzation process.')
-			time.sleep(stall)
-			imgs.append(cam.adjust_read())
-
-			workers.append(threading.Thread(target=analyze, args=(ind,), daemon=True))
-			workers[ind].start()
-
-		with self.camera as cam:
-            # Attempting to start head rotation
-			# rotate.init_serial()
-
-			# Start processing pic 0
-			process_frame(0)
-			workers[0].join()
-			if (disp): display(imgs[0], res[0])
-
-			# Start processing pic 1
-			# process_frame(1)
-			# workers[1].join()
-			# display(imgs[1], res[1])
-
-			# Start processing pic 2
-			# process_frame(2)
-			# workers[2].join(stall)
-			# display(imgs[2], res[2])
-
-		matches: Set[str] = {match for matches in res for match, _ in matches}
-		formatted: str = "[" + ", ".join(matches) + "]"
-		print(f"Recognized: {formatted}"); return matches
+		names: Set[str] = {name for name, _ in pruned}
+		formatted: str = "[" + ", ".join(names) + "]"
+		print(f"Recognized: {formatted}"); return names
 
 	def __init__(self: any, local: Optional[bool] = DEFAULT_LOCAL, path: str = DEFAULT_PATH, open: bool = DEFAULT_OPEN,
 				 load: bool = DEFAULT_LOAD, cache: bool = DEFAULT_CACHE, cache_location: str = DEFAULT_CACHE_LOCATION,
@@ -115,8 +102,10 @@ class Client:
 
 		self.camera = Camera(dev) if open else None
 		self.task_map = {
-			'learn': (lambda: self.learn_face(disp=True)),
-			'attendance': (lambda: self.take_attendance(disp=True))
+			'learn': (lambda names: self.learn_face(names, disp=True)),
+			'l': (lambda names: self.learn_face(names, disp=True)),
+			'attendance': (lambda _: self.take_attendance(disp=True)),
+			'a': (lambda _: self.take_attendance(disp=True)),
 		}
 		self.local = local
 		self.path = path
@@ -166,7 +155,7 @@ class Client:
 		Returns the function corresponding to the task name given.
 		"""
 
-		self.task_map.setdefault(task, lambda: print("Unrecognized command, please try again"))
+		self.task_map.setdefault(task, lambda _: print("Unrecognized command, please try again"))
 		return self.task_map[task]
 
 	def set_local(self: any, filepath: str, force: bool = True) -> None:
@@ -186,13 +175,6 @@ class Client:
 		self.ip = self.ip if ip is None else ip
 		self.port = self.port if port is None else port
 		if force: self._local = False
-
-	def set_auto(self: any) -> None:
-		"""
-		Sets client to neither mode, so it can auto assume whenever a function is running.
-		"""
-
-		self.local = None
 
 	def analyze_faces(self: any, img: np.ndarray) -> Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]:
 		"""
@@ -229,17 +211,3 @@ class Client:
 			result = local_load_cache(self.encoding_map, cache_location=self.cache_location)
 			return result is not None
 		else: return False
-
-	def add_face(self: any, img: np.ndarray) -> None:
-		"""
-		Adds a face encoding if possible.
-		"""
-
-		if self.is_local(): check_and_add()
-
-	def get_actions(self: any) -> List[str]:
-		"""
-		Returns the list of possible actions for the client.
-		"""
-
-		return list(self._task_map.keys())

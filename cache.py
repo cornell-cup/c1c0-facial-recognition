@@ -49,7 +49,7 @@ def cache_website() -> None:
         print(f"Finished downloading image {i:02}: {url}")
 
     print("Started loading all images onto cache.")
-    client: Client = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION,dev=None)
+    _ = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION,dev=None)
     print("Finished loading all images onto cache.")
 
     shutil.rmtree(DOWNLOAD_PATH)
@@ -71,7 +71,7 @@ def cache_images(filenames: str) -> None:
         print(f"Converted {filename} to {diffname}")
 
     print("Started loading all images onto cache.")
-    client: Client = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
+    _ = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
     print("Finished loading all images onto cache.")
 
     shutil.rmtree(OUTPUT_PATH)

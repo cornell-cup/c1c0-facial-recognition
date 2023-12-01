@@ -1,4 +1,4 @@
-import socket, time, threading, os
+import time, os
 
 from client.camera import *
 from client.client import *
@@ -17,8 +17,10 @@ if __name__ == '__main__':
 
 	while True:
 		os.system('cls' if os.name == 'nt' else 'clear')
-		command = input().lower()
+		inputs = input().split(' ')
+		command, args = inputs[0].lower(), inputs[1:]
 
-		if (command == 'exit' or command == 'quit'): break
-		task = client.interpret_task(command); task()
+		if (command == 'exit' or command == 'e'): break
+		if (command == 'quit' or command == 'q'): break
+		task = client.interpret_task(command); task(args)
 		time.sleep(1)

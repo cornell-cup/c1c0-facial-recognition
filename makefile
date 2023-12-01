@@ -14,4 +14,5 @@ install: venv
 
 venv:
 	sudo rm -rf venv/
-	python -m venv/ venv/
+	if [ "$(shell uname -s)" == "Darwin" ]; then python -m venv venv; fi
+	if [ "$(shell expr substr $(uname -s) 1 5)" == "Linux" ]; then python3.6 -m venv/ venv/; fi

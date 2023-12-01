@@ -62,7 +62,7 @@ class Camera:
 			except cv2.error: ind += 1; time.sleep(1)
 
 	@staticmethod
-	def adjust_hsv(img: np.ndarray, sat_mod: int = -70, brightness_mod: int = 60) -> np.ndarray:
+	def adjust_hsv(img: np.ndarray, sat_mod: int = -10, brightness_mod: int = 10) -> np.ndarray:
 		"""
 		Utility for adjusting the brightness of an image. Sourced from the following:
         https://stackoverflow.com/questions/32609098/how-to-fast-change-image-brightness-with-python-opencv

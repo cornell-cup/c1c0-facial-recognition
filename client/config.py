@@ -1,6 +1,6 @@
 import sys, os, logging
 
-from typing import List
+from typing import List, Tuple
 
 # Computer architecture config.
 DEFAULT_PATH: str            = os.getenv('DEFAULT_PATH', 'resources/people')
@@ -14,17 +14,21 @@ DEFAULT_DEVICE: int          = os.getenv('DEFAULT_DEVICE', None)
 DEFAULT_PORT: int            = 1233  # 8080 non-privilege or 80 privilege.
 
 # Facial recognition config.
-DEFAULT_SCALE_FACTOR: float  = 0.25
-DEFAULT_ENCODING_MODEL: str  = 'large'
-DEFAULT_NN_MODEL: str        = 'cnn'
-DEFAULT_UNKNOWN_FACE_ID: str = 'Unknown'
-DEFAULT_TIMEOUT: int         = 10
-DEFAULT_CHECKIN_RATE: int    = 10
-IMG_EXTs: List[str]          = ['jpg', 'jpeg', 'png']
-ENCODING_EXT: str            = 'enc'
-SEND_IMG: bool               = False
-SEND_ENCODING: bool          = True
-TEXT_ENCODING: str           = 'utf-8'
+COLORS: List[Tuple[int, int, int]] = [(0, 0, 255), (0, 255, 0), (255, 0, 0), (255, 255, 0), (0, 255, 255)]
+DEFAULT_SCALE_FACTOR: float        = 0.25
+DEFAULT_NUM_JITTERS: int           = 2
+DEFAULT_NUM_UPSAMPLE: int          = 2
+DEFAULT_ENCODING_MODEL: str        = 'small'
+DEFAULT_NN_MODEL: str              = 'cnn'
+DEFAULT_UNKNOWN_FACE_ID: str       = 'Unknown'
+DEFAULT_TIMEOUT: int               = 10
+DEFAULT_CHECKIN_RATE: int          = 10
+TOLERANCE: float                   = 0.6
+IMG_EXTs: List[str]                = ['jpg', 'jpeg', 'png']
+ENCODING_EXT: str                  = 'enc'
+SEND_IMG: bool                     = False
+SEND_ENCODING: bool                = True
+TEXT_ENCODING: str                 = 'utf-8'
 
 # Logging config.
 LOG_FILE: str                = os.path.join(os.getcwd(), 'facial_recognition.log')
