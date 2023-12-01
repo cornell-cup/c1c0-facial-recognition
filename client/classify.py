@@ -13,7 +13,7 @@ NUM_JITTERS: int = DEFAULT_NUM_JITTERS
 NUM_UPSAMPLE: int = DEFAULT_NUM_UPSAMPLE
 
 def check_and_add_img(img: np.ndarray, name: str, mappings: MutableMapping, cache: bool = True,
-                        cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
+                      cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
     """
     Helper function that checks if the encoding is already cached for an img, and if so
     adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
@@ -49,7 +49,7 @@ def check_and_add_img(img: np.ndarray, name: str, mappings: MutableMapping, cach
         mappings[name] = encoding
 
 def check_and_add_file(path: str, file: str, mappings: MutableMapping, cache: bool = True,
-				  cache_location: str = DEFAULT_CACHE_LOCATION,) -> None:
+				       cache_location: str = DEFAULT_CACHE_LOCATION,) -> None:
 	"""
 	Helper function that checks if the encoding is already cached for a file, and if so
 	adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
@@ -120,14 +120,14 @@ def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cach
 			for file in files:
 				ext: str = file[file.rindex('.')+1:]
 
-				if ext in IMG_EXTs: check_and_add_file(path, file, mappings, cache_location, cache)
+				if ext in IMG_EXTs: check_and_add_file(path, file, mappings, cache, cache_location)
 				else: print(f'Ignoring file: {file}, with extension: {ext} not in {IMG_EXTs}')
 
 	elif os.path.isfile(path):
 		ext = path[path.rindex('.')+1:]
 
 		if ext not in IMG_EXTs: print('File being loaded, with extension: {ext} not in {IMG_EXTs}')
-		check_and_add_file(*os.path.split(path), mappings, cache_location, cache)
+		check_and_add_file(*os.path.split(path), mappings, cache, cache_location)
 
 	else: raise RuntimeError(f'The path given ({path}) is not a directory or file.')
 
@@ -176,6 +176,7 @@ def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> np.nd
 	-------
 	np.ndarray - The encoding as a np.ndarray.
 	"""
+	os.makedirs(cache_location, exist_ok=True)
 
 	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'rb') as file:
 		return np.frombuffer(file.read())
@@ -192,9 +193,8 @@ def add_cache(name: str, encoding: np.ndarray, cache_location: str = DEFAULT_CAC
 	"""
 	os.makedirs(cache_location, exist_ok=True)
 
-	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'wb+') as f:
-		f.seek(0); f.truncate()
-		f.write(encoding.tobytes())
+	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'wb+') as file:
+		file.seek(0); file.truncate(); file.write(encoding.tobytes())
 
 def check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) -> List[Tuple[str, Tuple[int, int, int, int]]]:
 	"""

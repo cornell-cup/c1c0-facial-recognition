@@ -49,7 +49,7 @@ class Client:
 		name - Name of the face in the image.
 		disp - Whether or not to display the image with bounding boxes.
 		"""
-		name = ' '.join(names) if len(names) > 0 else "Face Number " + str(Client.face_number)
+		name = ' '.join(names) if len(names) > 0 else "Face Num " + str(Client.face_number)
 
 		with self.camera as cam:
 			print('Taking picture and starting analyzation process.')
