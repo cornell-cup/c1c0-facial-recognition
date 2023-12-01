@@ -71,7 +71,7 @@ class Client:
 			bbox = dict(boxstyle="round", ec=(1., 0.5, 0.5), fc=(1., 0.8, 0.8))
 
 			plt.text(cleft + 10, cbottom + 10, text, size=12, ha="center", va="center", bbox=bbox)
-			plt.axis('off'); plt.draw(); plt.pause(25 * stall); plt.close()
+			plt.axis('off'); plt.draw(); plt.pause(5 * stall); plt.close()
 
 		def process_frame(ind: int) -> None:
 			print(f'Taking picture {ind} and starting analyzation process.')
@@ -175,7 +175,7 @@ class Client:
 		"""
 
 		self.path = self._path if filepath is None else filepath
-		self.encoding_map = self.encoding_map if filepath is None else load_images(filepath)
+		self.encoding_map = self.encoding_map if filepath is None else self.load_images(filepath)
 		if force: self._local = True
 
 	def set_remote(self, ip: Optional[str] = None, port: Optional[int] = None, force: bool = True) -> None:

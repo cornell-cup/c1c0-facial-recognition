@@ -1,8 +1,8 @@
 from client.config import DEFAULT_DEVICE, LOG_LEVEL, LOG_FILE
-import logging, threading, time, cv2
+import threading, time, cv2
 import numpy as np
 
-from typing import Optional
+from typing import List, Optional
 
 # Custom error for device failure.
 class DeviceError(OSError): pass
@@ -39,7 +39,7 @@ class Camera:
 			if not self.dev.open(self._dev):
 				raise DeviceError(f'Unable to open device at index: {self._dev}')
 
-		self.reader: Thread = threading.Thread(target=self.read_image)
+		self.reader: threading.Thread = threading.Thread(target=self.read_image)
 		if not self.reader.is_alive(): self.reader.start()
 		return self
 

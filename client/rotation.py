@@ -73,7 +73,7 @@ def decode_data(data: bytes) -> Tuple[bytes, bytes, int]:
 
     while not flag and ind < 17: # Allow message length up to 16 bytes
         try:
-            recv: any = struct.unpack('> 3B H 4s I {}s 3B'.format(i), data)
+            recv: any = struct.unpack('> 3B H 4s I {}s 3B'.format(ind), data)
             flag: bool = True
         except: ind += 1
 

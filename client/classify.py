@@ -24,7 +24,7 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 
 	try: filename: str = file[:file.rindex('.')]
 	except ValueError as exc:
-		raise ValueError(f'file named {file_} does not contain a ".".') from exc
+		raise ValueError(f'file named {file} does not contain a ".".') from exc
 
 	if cache:
 		# Following EAFP idiom.
@@ -36,13 +36,15 @@ def check_and_add(path: str, file: str, mappings: MutableMapping, cache_location
 				model=ENCODING_MODEL
 			)
 
+			if (len(encodings) == 0): print(f'No faces found in {file}.'); return
+
 			encoding: np.ndarray = encodings[0]
 			add_cache(filename, encoding, cache_location)
 			mappings[filename] = encoding
 
 	else:
 		encodings: List[np.ndarray] = face_recognition.face_encodings(
-			face_recognition.load_image_file(os.path.join(path_, file_)),
+			face_recognition.load_image_file(os.path.join(path, file)),
 			model=ENCODING_MODEL
         )
 

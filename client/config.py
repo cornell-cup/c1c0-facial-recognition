@@ -16,7 +16,7 @@ DEFAULT_PORT: int            = 1233  # 8080 non-privilege or 80 privilege.
 # Facial recognition config.
 DEFAULT_SCALE_FACTOR: float  = 0.25
 DEFAULT_ENCODING_MODEL: str  = 'large'
-DEFAULT_NN_MODEL: str        = 'hog'
+DEFAULT_NN_MODEL: str        = 'cnn'
 DEFAULT_UNKNOWN_FACE_ID: str = 'Unknown'
 DEFAULT_TIMEOUT: int         = 10
 DEFAULT_CHECKIN_RATE: int    = 10
