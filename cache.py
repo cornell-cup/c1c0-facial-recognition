@@ -1,17 +1,16 @@
 import subprocess, requests, shutil, sys, bs4, re, os
-from typing import List
 
 from client.client import *
 from client.config import *
 
-# Global Variables
+from typing import List
+
+# Global variables
 SITE: str          = "https://cornellcuprobotics.com/"
 OUTPUT_PATH: str   = "resources/cache/"
 DOWNLOAD_PATH: str = "resources/download/"
 SIZE: str          = "900x600!"
-PORT: int          = 1233
 EXT: str           = ".JPG"
-IP: str            = "127.0.0.1"
 
 def convert(urlname: str) -> str:
 	rmwords: List[str] = ["C1C0CS", "BIZCOMM", "MINIBOTCS", "ECE", "_", "-"]
@@ -49,7 +48,7 @@ def cache_website() -> None:
         print(f"Finished downloading image {i:02}: {url}")
 
     print("Started loading all images onto cache.")
-    _ = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
+    _ = Client(path=OUTPUT_PATH, open=False)
     print("Finished loading all images onto cache.")
 
     shutil.rmtree(DOWNLOAD_PATH)
@@ -71,7 +70,7 @@ def cache_images(filenames: str) -> None:
         print(f"Converted {filename} to {diffname}")
 
     print("Started loading all images onto cache.")
-    _ = Client(path=OUTPUT_PATH, ip=IP, open=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION, dev=None)
+    _ = Client(path=OUTPUT_PATH, open=False)
     print("Finished loading all images onto cache.")
 
     shutil.rmtree(OUTPUT_PATH)

@@ -1,147 +1,167 @@
-from client.config import DEFAULT_DEVICE, LOG_LEVEL, LOG_FILE
-import threading, time, cv2
-import numpy as np
+import numpy as np, threading, time, cv2
+
+from client.config import DEFAULT_CAMERA
 
 from typing import List, Optional
-
-# Custom error for device failure.
-class DeviceError(OSError): pass
 
 class Camera:
 	"""
 	A wrapper around cv2.VideoCapture, see https://docs.opencv.org/3.4/d8/dfe/classcv_1_1VideoCapture.html
 	"""
 
-	dev: cv2.VideoCapture
-
-	def __init__(self: any, dev: Optional[int] = DEFAULT_DEVICE, n_tries: int = 30) -> 'Camera':
+	def __init__(self: any, camera: Optional[int] = DEFAULT_CAMERA, attempts: int = 30) -> None:
 		"""
 		Facial recognition camera initialization
 
 		PARAMETERS
 		----------
-		dev - Device ID for the camera. Refer to cv2.VideoCapture. If None, will call
-        	  Camera.find_camera() to get the camera. By default will use the config
-              value, DEFAULT_DEVICE.
+		camera   - The camera device to attempt first.
+		attempts - The number of attempts to try to read in frames from the camera.
         """
 
-		self._dev: str = Camera.find_camera() if dev is None else dev
-		self.dev: cv2.VideoCapture = cv2.VideoCapture(self._dev, cv2.CAP_GSTREAMER)
-		self.n_tries: int = n_tries
-		self.current_img: Optional[np.ndarray] = None
+		self.devices: int                = 10
+		self.attempts: int               = attempts
+		self.image: Optional[np.ndarray] = None
 
-	def __enter__(self: any) -> 'Camera':
+		self.camera: str                 = self.find_camera() if camera is None else camera
+		self.device: cv2.VideoCapture    = cv2.VideoCapture(self.camera, cv2.CAP_GSTREAMER)
+
+	def __enter__(self: any) -> None:
 		"""
 		Initializer for when doing 'with Camera as cam' or something similar.
 		"""
 
-		if not self.dev.isOpened():
-			if not self.dev.open(self._dev):
-				raise DeviceError(f'Unable to open device at index: {self._dev}')
+		if not self.device.isOpened():
+			if not self.device.open(self.camera):
+				raise OSError(f'Unable to open device at index: {self.camera}')
 
 		self.reader: threading.Thread = threading.Thread(target=self.read_image)
 		if not self.reader.is_alive(): self.reader.start()
 		return self
 
-	def __exit__(self: any, exc_type: any, exc_val: any, exc_tb: any) -> 'Camera':
+	def __exit__(self: any, exc_type: any, exc_val: any, exc_tb: any) -> None:
 		"""
 		Exit process for whenever main thread wants to reconnect with child.
 		"""
 
 		if self.reader.is_alive(): self.reader.join()
-		self.dev.release()
+		self.device.release()
 
-	def adjust_read(self: any, timeout: int = 5) -> None:
+	def adjust_read(self: any, sat_mod: int = -10, brightness_mod: int = 10, timeout: int = 10) -> np.ndarray:
 		"""
-		Repeatedly tries to adjust the brightness of the current read image.
+		Repeatedly tries to adjust the brightness and saturdation of the current read image.
+		Sourced from the following: https://stackoverflow.com/questions/32609098/how-to-fast-change-image-brightness-with-python-opencv
+
+		PARAMETERS
+		----------
+		img             - The image to adjust, in BGR format.
+		sat_mod         - The saturation modifier, more positive is more saturated.
+		brightness_mod  - The brightness modifier, more positive is brighter.
+
+		RETURNS
+		-------
+		np.ndarray - The adjusted image, in BGR format.
 		"""
 
 		ind: int = 0
 		while ind < timeout:
-			try: return Camera.adjust_hsv(self.current_img)
-			except cv2.error: ind += 1; time.sleep(1)
+			try:
+				hsv: np.ndarray = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
-	@staticmethod
-	def adjust_hsv(img: np.ndarray, sat_mod: int = -10, brightness_mod: int = 10) -> np.ndarray:
-		"""
-		Utility for adjusting the brightness of an image. Sourced from the following:
-        https://stackoverflow.com/questions/32609098/how-to-fast-change-image-brightness-with-python-opencv
-		"""
+				result: np.ndarray = np.array(hsv, dtype=hsv.dtype)
+				result[:, :, 1] = cv2.add(hsv[:,:,1], sat_mod)
+				result[:, :, 2] = cv2.add(hsv[:,:,2], brightness_mod)
 
-		hsv: np.ndarray = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+				rgb: np.ndarray = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
+				return rgb
 
-		result: np.ndarray = np.array(hsv, dtype=hsv.dtype)
-		result[:, :, 1] = cv2.add(hsv[:,:,1], sat_mod)
-		result[:, :, 2] = cv2.add(hsv[:,:,2], brightness_mod)
+			except cv2.error: ind += 1; time.sleep(1); continue
 
-		rgb: np.ndarray = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
-		return rgb
+		raise OSError(f'Unable to adjust image after {timeout} attempts.')
 
-	def read_image(self: any, n_tries: Optional[int] = None) -> None:
+	def read_image(self: any, attempts: Optional[int] = None) -> None:
 		"""
 		Attempts to read in frames from camera until success.
+
+		PARAMETERS
+		----------
+		attempts - The number of attempts to try to read in frames from the camera.
 		"""
 
-		n_tries: int = self.n_tries if n_tries is None else n_tries
+		attempts: int = self.attempts if attempts is None else attempts
 		fnd: bool = False
-		for _ in range(n_tries):
-			ret: bool; img: np.ndarray
-			ret, img = self.dev.read()
-			if ret:
-				self.current_img: np.ndarray = img
-				fnd: bool = True
-			time.sleep(0.1)
-		if not fnd: raise DeviceError(f'No frames received after {n_tries} tries.')
 
-	@staticmethod
-	def find_camera(rgb_only: bool = True, n_devices: int = 10, n_tries: int = 30) -> int:
+		for _ in range(attempts):
+			ret: bool; img: np.ndarray; ret, img = self.device.read()
+
+			if ret: self.image: np.ndarray = img; fnd: bool = True
+			time.sleep(0.1)
+
+		if not fnd: raise OSError(f'No frames received after {attempts} attempts.')
+
+	def find_camera(self: any, rgb: bool = True, devices: Optional[int] = None, attempts: Optional[int] = None) -> int:
 		"""
 		Attempts to initalize cameras and returns descriptor of first working one.
+
+		PARAMETERS
+		----------
+		rgb      - Whether or not to only return RGB cameras.
+		devices  - The number of devices to try to initialize.
+		attempts - The number of attempts to try to read in frames from the camera.
+
+		RETURNS
+		-------
+		int - The descriptor of the first working camera.
 		"""
 
-		_dev: int = 0
+		camera:   int = 0
+		devices:  int = self.devices if devices is None else devices
+		attempts: int = self.attempts if attempts is None else attempts
 
-		while _dev < n_devices:
-			cam: cv2.VideoCapture = cv2.VideoCapture(_dev)
-			if not cam.isOpened():_dev += 1; continue
+		while camera < devices:
+			cam: cv2.VideoCapture = cv2.VideoCapture(camera)
+			if not cam.isOpened(): camera += 1; continue
 
-			tries: int = 0
-			ret: bool = False
+			attempt: int = 0
+			ret: bool    = False
 
 			try:
 				img: Optional[np.ndarray] = None
 
 				while not ret:
-					ret: bool; img: np.ndarray
-					ret, img = cam.read()
-					if tries >= n_tries: raise RuntimeError(f'No frames received after {n_tries} tries.')
-					tries += 1
+					ret: bool; img: np.ndarray; ret, img = cam.read()
 
-				if rgb_only and img is not None and not Camera.is_rgb(img):
-					raise RuntimeError('Camera is not RGB.')
+					if attempt >= attempts: raise RuntimeError(f'No frames received after {attempts} tries.')
+					attempt += 1
 
-				cam.release()
-				return _dev
+				if rgb and img is not None and not Camera.is_rgb(img):
+					raise RuntimeError(f'Camera {camera} is not RGB.')
+
+				cam.release(); return camera
 
 			except RuntimeError:
-				cam.release()
-				_dev += 1
-				continue
+				cam.release(); camera += 1; continue
 
-			raise RuntimeError('No valid camera device found.')
+		raise RuntimeError('No valid camera device found.')
 
-	@staticmethod
 	def is_rgb(img: np.ndarray, sampling: int = 5) -> bool:
 		"""
 		Determines whether a certain camera is RGB or not.
+
+		PARAMETERS
+		----------
+		img      - The image to check.
+		sampling - The number of pixels to sample.
+
+		RETURNS
+		-------
+		bool - Whether or not the image is RGB.
 		"""
 
 		try:
-			width: int; height: int
-			width, height, _ = img.shape
+			width: int; height: int; width, height, _ = img.shape
 		except ValueError:
-			width: int; height: int
-			width, height = img.shape
+			width: int; height: int; width, height = img.shape
 
 		for x in range(sampling):
 			for y in range(sampling):

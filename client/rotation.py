@@ -43,6 +43,14 @@ def crc16_check(data: bytes) -> int:
     """
     Calculates CRC16 checksum for the given data. 0 for incorrect checksum, 1
     for correct checksum.
+
+    PARAMETERS
+    ----------
+    data - The data to calculate the checksum for.
+
+    RETURNS
+    -------
+    int - The checksum.
     """
 
     crc: int = 0xffff
@@ -55,6 +63,15 @@ def crc16_check(data: bytes) -> int:
 def encode_data(type_: bytes, data: bytes) -> bytes:
     """
     Encodes the given data using r2protocol.
+
+    PARAMETERS
+    ----------
+    type_ - The type of the message.
+    data  - The data to encode.
+
+    RETURNS
+    -------
+    bytes - The encoded data.
     """
 
     checksum: int = crc16_check(data)
@@ -65,15 +82,23 @@ def decode_data(data: bytes) -> Tuple[bytes, bytes, int]:
     """
     Confirm checksum of data and return a tuple containing message type, message
     data, and checksum status. 0 for incorrect checksum, 1 for correct checksum.
+
+    PARAMETERS
+    ----------
+    data - The data to decode.
+
+    RETURNS
+    -------
+    Tuple[bytes, bytes, int] - The decoded data.
     """
 
     # Try unpacking data until the correct message length is found
     flag: bool = False
-    ind: int = 0
+    ind: int   = 0
 
     while not flag and ind < 17: # Allow message length up to 16 bytes
         try:
-            recv: any = struct.unpack('> 3B H 4s I {}s 3B'.format(ind), data)
+            recv: any  = struct.unpack('> 3B H 4s I {}s 3B'.format(ind), data)
             flag: bool = True
         except: ind += 1
 
@@ -81,20 +106,25 @@ def decode_data(data: bytes) -> Tuple[bytes, bytes, int]:
     if ind >= 17 or len(recv) < 7: return -1, -1, -1
 
     msgchecksum: int = recv[3]
-    msgtype: bytes = recv[4]
-    msg: bytes = recv[6]
+    msgtype: bytes   = recv[4]
+    msg: bytes       = recv[6]
 
     checksum: int = crc16_check(msg)
-    status: int = int(checksum == msgchecksum)
+    status: int   = int(checksum == msgchecksum)
     return msgtype, msg, status
 
-def init_serial(_port: str = '/dev/ttyTHS1', _baud: int = 9600) -> None:
+def init_serial(port: str = '/dev/ttyTHS1', baud: int = 9600) -> None:
     """
     Opens the serial port to the Arduino, must be called at the beginning before
     using any other functions.
+
+    PARAMETERS
+    ----------
+    port - The port to open.
+    baud - The baudrate to use.
     """
 
-    global ser; ser = serial.Serial(port = _port, baudrate = _baud)
+    global ser; ser = serial.Serial(port = port, baudrate = baud)
 
 def close_serial() -> None:
     """
@@ -109,11 +139,15 @@ def format_msg(angle: int, negative: bool, absolute: bool) -> str:
 	This method takes information about the angle of rotation and formats to be
     able to be sent to the arduino to turn the servo.
 
-    @param angle, 0 <= ang <= 202, angle to turn (either to or for).
-    @param negative, 1 if the angle is negative from the current position
-           (only necessary when the angle is a change in).
-    @param absolute, 1 if the ang given is an absolute angle, 0 if ang is
-           a change in angle.
+    PARAMETERS
+    ----------
+    angle    - The angle to turn to, 0 <= ang <= 202.
+    negative - Whether the angle is negative or not, 1 if negative, 0 if positive.
+    absolute - Whether the angle is absolute or not, 1 if absolute, 0 if relative.
+
+    RETURNS
+    -------
+    str - The formatted message.
     """
 
     data: str = 'head rot: ' + str(angle) + str(absolute) + str(negative)
@@ -123,14 +157,19 @@ def send_msg(msg: str) -> int:
     """
     Attempts to send the given formatted message to the Arduino. Returns 1 if
     successful, 0 if unsuccessful.
+
+    PARAMETERS
+    ----------
+    msg - The message to send.
+
+    RETURNS
+    -------
+    int - 1 if successful, 0 if unsuccessful.
     """
 
     byte_msg: bytes = bytearray(msg.encode())
     byte_type: bytes = bytes("head", "utf-8")
     data: bytes = encode_data(byte_type, byte_msg)
 
-    try:
-        ser.write(data)
-        time.sleep(0.1)
-        return 1
+    try: ser.write(data); time.sleep(0.1); return 1
     except: return 0

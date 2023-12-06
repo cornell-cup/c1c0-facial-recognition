@@ -5,15 +5,11 @@ from client.client import *
 from client.config import *
 from client.rotation import *
 
-# Computer architecture related settings.
-IP: str           = '127.0.0.1'
-PORT: int         = 1233
-SLEEP_TIME: float = 0.5
-DISPLAY: bool     = True
-# DEV: str          = 'v4l2src device=/dev/video0 ! videoconvert ! appsink'
+# Global variables
+SLEEP_TIME: float = 1
 
 if __name__ == '__main__':
-	client: Client = Client(ip=IP, load=False, port=PORT, cache_location=DEFAULT_CACHE_LOCATION)
+	client: Client = Client(load=False)
 
 	while True:
 		os.system('cls' if os.name == 'nt' else 'clear')
@@ -23,4 +19,4 @@ if __name__ == '__main__':
 		if (command == 'exit' or command == 'e'): break
 		if (command == 'quit' or command == 'q'): break
 		task = client.interpret_task(command); task(args)
-		time.sleep(1)
+		time.sleep(SLEEP_TIME)

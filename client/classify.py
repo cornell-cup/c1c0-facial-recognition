@@ -1,19 +1,18 @@
-import os, face_recognition
-import numpy as np
+import numpy as np, os, face_recognition
 
 from client.config import *
 
 from typing import Mapping, Tuple, List, MutableMapping
 
 # Configurations
-ENCODING_MODEL: str = DEFAULT_ENCODING_MODEL
+ENCODING_MODEL: str    = DEFAULT_ENCODING_MODEL
 FACE_DETECT_MODEL: str = DEFAULT_NN_MODEL
-UNKNOWN_FACE: str = DEFAULT_UNKNOWN_FACE_ID
-NUM_JITTERS: int = DEFAULT_NUM_JITTERS
-NUM_UPSAMPLE: int = DEFAULT_NUM_UPSAMPLE
+UNKNOWN_FACE: str      = DEFAULT_UNKNOWN_FACE_ID
+NUM_JITTERS: int       = DEFAULT_NUM_JITTERS
+NUM_UPSAMPLE: int      = DEFAULT_NUM_UPSAMPLE
 
 def check_and_add_img(img: np.ndarray, name: str, mappings: MutableMapping, cache: bool = True,
-                      cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
+                      cache_dir: str = DEFAULT_CACHE_DIR) -> None:
     """
     Helper function that checks if the encoding is already cached for an img, and if so
     adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
@@ -21,35 +20,34 @@ def check_and_add_img(img: np.ndarray, name: str, mappings: MutableMapping, cach
 
     PARAMETERS
     ----------
-    img - The image as a np.ndarray.
-    name - The name of the person in the image.
-    mappings - The mappings to update with the added filenames.
-    cache - Whether to cache the files as they are loaded.
-    cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+    img       - The image as a np.ndarray.
+    name      - The name of the person in the image.
+    mappings  - The mappings to update with the added filenames.
+    cache     - Whether to cache the files as they are loaded.
+    cache_dir - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
     """
 
     if cache:
-        # Following EAFP idiom.
-        try: mappings[name] = get_cached(name, cache_location)
-        except OSError:
-            # DNE in cache
-            encodings: List[np.ndarray] = face_recognition.face_encodings(
-                img, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
+        try: mappings[name] = get_cached(name, cache_dir)
 
+        except OSError:
+            encodings: List[np.ndarray] = face_recognition.face_encodings(
+				img, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
             if (len(encodings) == 0): print(f'No faces found in {name}.'); return
+
             encoding: np.ndarray = encodings[0]
-            add_cache(name, encoding, cache_location)
+            add_cache(name, encoding, cache_dir)
             mappings[name] = encoding
     else:
         encodings: List[np.ndarray] = face_recognition.face_encodings(
             img, num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
-
         if (len(encodings) == 0): print(f'No faces found in {name}.'); return
+
         encoding: np.ndarray = encodings[0]
         mappings[name] = encoding
 
 def check_and_add_file(path: str, file: str, mappings: MutableMapping, cache: bool = True,
-				       cache_location: str = DEFAULT_CACHE_LOCATION,) -> None:
+				       cache_dir: str = DEFAULT_CACHE_DIR) -> None:
 	"""
 	Helper function that checks if the encoding is already cached for a file, and if so
 	adds it to the mappings. Otherwise, it will generate an encoding for the face, and store
@@ -57,60 +55,53 @@ def check_and_add_file(path: str, file: str, mappings: MutableMapping, cache: bo
 
     PARAMETERS
     ----------
-    path - The path as a str to the directory where the file is located.
-    file - The filename.
-	mappings - The mappings to update with the added filenames.
-    cache - Whether to cache the files as they are loaded.
-    cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+    path      - The path as a str to the directory where the file is located.
+    file      - The filename.
+	mappings  - The mappings to update with the added filenames.
+    cache     - Whether to cache the files as they are loaded.
+    cache_dir - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
     """
 
 	try: filename: str = file[:file.rindex('.')]
-	except ValueError as exc:
-		raise ValueError(f'file named {file} does not contain a ".".') from exc
+	except ValueError as exc: raise ValueError(f'file named {file} does not contain a ".".') from exc
 
 	if cache:
-		# Following EAFP idiom.
-		try: mappings[filename] = get_cached(filename, cache_location)
+		try: mappings[filename] = get_cached(filename, cache_dir)
+
 		except OSError:
-			# DNE in cache
 			encodings: List[np.ndarray] = face_recognition.face_encodings(
 				face_recognition.load_image_file(os.path.join(path, file)),
-                num_jitters=NUM_JITTERS,
-				model=ENCODING_MODEL
-			)
-
+                num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
 			if (len(encodings) == 0): print(f'No faces found in {file}.'); return
 
 			encoding: np.ndarray = encodings[0]
-			add_cache(filename, encoding, cache_location)
+			add_cache(filename, encoding, cache_dir)
 			mappings[filename] = encoding
 	else:
 		encodings: List[np.ndarray] = face_recognition.face_encodings(
 			face_recognition.load_image_file(os.path.join(path, file)),
-            num_jitters=NUM_JITTERS,
-			model=ENCODING_MODEL
-        )
-
+            num_jitters=NUM_JITTERS, model=ENCODING_MODEL)
 		if (len(encodings) == 0): print(f'No faces found in {file}.'); return
+
 		encoding: np.ndarray = encodings[0]
 		mappings[filename] = encoding
 
-def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: bool = True,
-					  cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
+def cload_images(path: str, mappings: Mapping[str, np.ndarray] = None, cache: bool = True,
+			     cache_dir: str = DEFAULT_CACHE_DIR) -> Mapping[str, np.ndarray]:
 	"""
 	Loads in the image(s) from the given `path`.
 
 	PARAMETERS
 	----------
-	path - The path to the image or directory.
-	mappings - The mappings to update with the added filenames
-	cache - Whether to cache the files as they are loaded.
-	cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+	path      - The path to the image or directory.
+	mappings  - The mappings to update with the added filenames
+	cache     - Whether to cache the files as they are loaded.
+	cache_dir - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
 
 	RETURNS
 	-------
-	A Mapping of names to encodings. The encoding is a numpy array representation of an
-	individual face.
+	Mapping[str, np.ndarray] - A Mapping of names to encodings. The encoding is a numpy array
+	representation of an individual face.
 	"""
 
 	mappings: Mapping[str, np.ndarray] = {} if mappings is None else mappings
@@ -120,53 +111,54 @@ def local_load_images(path: str, mappings: Mapping[str, np.ndarray] = None, cach
 			for file in files:
 				ext: str = file[file.rindex('.')+1:]
 
-				if ext in IMG_EXTs: check_and_add_file(path, file, mappings, cache, cache_location)
+				if ext in IMG_EXTs: check_and_add_file(path, file, mappings, cache, cache_dir)
 				else: print(f'Ignoring file: {file}, with extension: {ext} not in {IMG_EXTs}')
 
 	elif os.path.isfile(path):
 		ext = path[path.rindex('.')+1:]
 
 		if ext not in IMG_EXTs: print('File being loaded, with extension: {ext} not in {IMG_EXTs}')
-		check_and_add_file(*os.path.split(path), mappings, cache, cache_location)
+		check_and_add_file(*os.path.split(path), mappings, cache, cache_dir)
 
 	else: raise RuntimeError(f'The path given ({path}) is not a directory or file.')
 
 	return mappings
 
-def local_load_cache(mappings: Mapping[str, np.ndarray] = None, cache_location: str = DEFAULT_CACHE_LOCATION) -> Mapping[str, np.ndarray]:
+def cload_cache(mappings: Mapping[str, np.ndarray] = None, cache_dir: str = DEFAULT_CACHE_DIR) -> Mapping[str, np.ndarray]:
 	"""
 	Loads in the encodings from the given `path`.
 
 	PARAMETERS
 	----------
-	mappings - The mappings to update with the added filenames.
-	cache_location - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
+	mappings  - The mappings to update with the added filenames.
+	cache_dir - The directory of the `cache` to check, default specified by `CACHE_LOCATION`
 
 	RETURNS
     -------
-	A Mapping of names to encodings. The encoding is a numpy array representation of an individual face.
+	Mapping[str, np.ndarray] - A Mapping of names to encodings. The encoding is a numpy array
+	representation of an individual face.
 	"""
 
 	mappings: Mapping[str, np.ndarray] = {} if mappings is None else mappings
 
-	for _, _, files in os.walk(cache_location):
+	for _, _, files in os.walk(cache_dir):
 		for file in files:
 			ext: str = file[file.rindex('.')+1:]
 			filename: str = file[:file.rindex('.')]
 
-			if ext == ENCODING_EXT: mappings[filename] = get_cached(filename, cache_location)
+			if ext == ENCODING_EXT: mappings[filename] = get_cached(filename, cache_dir)
 			else: print(f"Ignoring file: {file}, with extension: {ext} not equal to {ENCODING_EXT}")
 
 	return mappings
 
-def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> np.ndarray:
+def get_cached(name: str, cache_dir: str = DEFAULT_CACHE_DIR) -> np.ndarray:
 	"""
-	Gets the cached encoding from cache_location.
+	Gets the cached encoding from cache_dir.
 
 	PARAMETERS
 	----------
-	name - The name of the person whose encoding is being gotten.
-	cache_location - The path as a str of the folder where the cached encodings are located.
+	name      - The name of the person whose encoding is being gotten.
+	cache_dir - The path as a str of the folder where the cached encodings are located.
 
 	RAISES
 	------
@@ -176,24 +168,30 @@ def get_cached(name: str, cache_location: str = DEFAULT_CACHE_LOCATION) -> np.nd
 	-------
 	np.ndarray - The encoding as a np.ndarray.
 	"""
-	os.makedirs(cache_location, exist_ok=True)
 
-	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'rb') as file:
+	os.makedirs(cache_dir, exist_ok=True)
+
+	with open(os.path.join(cache_dir, f'{name}.{ENCODING_EXT}'), 'rb') as file:
 		return np.frombuffer(file.read())
 
-def add_cache(name: str, encoding: np.ndarray, cache_location: str = DEFAULT_CACHE_LOCATION) -> None:
+def add_cache(name: str, encoding: np.ndarray, cache_dir: str = DEFAULT_CACHE_DIR) -> None:
 	"""
-	Adds the [encoding] to the [cache_location] directory under [name].
+	Adds the [encoding] to the [cache_dir] directory under [name].
 
 	PARAMETERS
 	----------
-	name - The name of the person [encoding] is for.
-	encoding - The encoding for the person, [name].
-	cache_location - An optional argument of the directory of where the cache is located.
-	"""
-	os.makedirs(cache_location, exist_ok=True)
+	name      - The name of the person [encoding] is for.
+	encoding  - The encoding for the person, [name].
+	cache_dir - An optional argument of the directory of where the cache is located.
 
-	with open(os.path.join(cache_location, f'{name}.{ENCODING_EXT}'), 'wb+') as file:
+	RAISES
+	------
+	OSError - Usually raised when the file is unable to be accessed.
+	"""
+
+	os.makedirs(cache_dir, exist_ok=True)
+
+	with open(os.path.join(cache_dir, f'{name}.{ENCODING_EXT}'), 'wb+') as file:
 		file.seek(0); file.truncate(); file.write(encoding.tobytes())
 
 def check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) -> List[Tuple[str, Tuple[int, int, int, int]]]:
@@ -202,21 +200,21 @@ def check_faces(img: np.ndarray, mappings: Mapping[str, np.ndarray]) -> List[Tup
 
 	PARAMETERS
 	----------
-	img - The img to search for faces in.
-	mappings - The mappings of known people to known facial encodings. See load_images for more info on the mappings.
+	img      - The img to search for faces in.
+	mappings - The mappings of known people to known facial encodings.
 
 	RETURNS
 	-------
-	A list of name-image location pairs. The location is in (top, right, bottom, left) format. Note: It is returned
-	as a list as multiple Unknown values may be accrued. Any faces in the image that are recognized as a face but
-	is not a known face will have the location but be marked as Unknown.
+	List[Tuple[str, Tuple[int, int, int, int]]] - A list of name-image location pairs. The location is in
+	(top, right, bottom, left) format. Note: It is returned as a list as multiple Unknown values may be
+	accrued. Any faces in the image that are recognized as a face but is not a known face will have the
+	location but be marked as Unknown.
 	"""
 
 	try: ordered_map: List[Tuple[str, np.ndarray]] = list(mappings.items())
-	except AttributeError as exc: raise ValueError(f'Expected a Mapping type object. Got \'{mappings}\' instead.') from exc
+	except AttributeError as exc: raise ValueError(f'Expected a Mapping. Got \'{mappings}\' instead.') from exc
 
 	known_encodings: List[np.ndarray] = list(map(lambda x: x[1], ordered_map))
-
 	unknown_face_locations: List[any] = face_recognition.face_locations(img,
         number_of_times_to_upsample=NUM_UPSAMPLE, model=FACE_DETECT_MODEL)
 	unknown_face_encodings: List[any] = face_recognition.face_encodings(img,
