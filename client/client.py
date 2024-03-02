@@ -1,19 +1,19 @@
-import numpy as np, time, cv2
+import numpy as np, time, cv2 # Default Python Libraries
 
-from client.classify import check_faces, cload_images, cload_cache, check_and_add_img
-from client.camera import Camera
-from client.config import *
+from client.classify import check_faces, cload_images # Classification Functions
+from client.classify import cload_cache, check_and_add_img # Caching Functions
+from client.camera import Camera # Class For Activating The Camera
+from client.config import * # Default Configuration Values
 
-from typing import List, Mapping, Tuple, Set
+from typing import List, Mapping, Tuple, Set # Type Hinting
 
-# Config values
+# Copying Config Values
 UNKNOWN_FACE: str = DEFAULT_UNKNOWN_FACE_ID
-class InvalidParameter(ValueError): pass
 
 class Client:
     """
     Class representing the main bulk of the facial recognition client. Used to classify
-    images and send results to scheduler.
+    images, store encodings of faces, and return names of people recognized in images.
     """
 
     def display(self: any, img: np.ndarray, results: List[Tuple[str, Tuple[int, int, int, int]]]) -> None:
@@ -43,12 +43,14 @@ class Client:
     def classify_image(self: any, file: str, disp: bool = True, prnt: bool = True) -> List[str]:
         """
         Given a file, will classify the images and return a list of names of people recognized
-        in the image. Also displays the image with bounding boxes if disp is true.
+        in the image. Also displays the image with bounding boxes if disp is true, and prints
+        intermediate results if prnt is true.
 
         PARAMETERS
         ----------
         file  - The file to classify.
         disp  - Whether or not to display the image with bounding boxes.
+        prnt  - Whether or not to print the intermediate results.
 
         RETURNS
         -------
@@ -74,12 +76,14 @@ class Client:
     def learn_face(self: any, names: List[str], disp: bool = True, prnt: bool = True) -> List[str]:
         """
         Given a name, will take a picture and create a mapping from that name to the
-        approriate facial encodings.
+        approriate facial encodings. Also displays the image with bounding boxes if
+        disp is true, and prints intermediate results if prnt is true.
 
         PARAMETERS
         ----------
         name - Name of the face in the image.
         disp - Whether or not to display the image with bounding boxes.
+        prnt - Whether or not to print the intermediate results.
 
         RETURNS
         -------
@@ -107,11 +111,13 @@ class Client:
     def take_attendance(self: any, disp: bool = True, prnt: bool = True) -> List[str]:
         """
         Takes a picture and returns a list of names of people recognized in the image.
-        Also displays the image with bounding boxes if disp is true.
+        Also displays the image with bounding boxes if disp is true, and prints intermediate
+        results if prnt is true.
 
         PARAMETERS
         ----------
         disp - Whether or not to display the image with bounding boxes.
+        prnt - Whether or not to print the intermediate results.
 
         RETURNS
         -------
@@ -136,7 +142,7 @@ class Client:
     def __init__(self: any, path: str = DEFAULT_PATH, open: bool = DEFAULT_OPEN, load: bool = DEFAULT_LOAD,
                  disp: bool = DEFAULT_DISP, prnt: bool = DEFAULT_PRINT, cache: bool = DEFAULT_CACHE,
                  cache_dir: str = DEFAULT_CACHE_DIR, mappings = None, camera: str = DEFAULT_CAMERA,
-                 scale_factor: float = DEFAULT_SCALE_FACTOR,) -> None:
+                 scale_factor: float = DEFAULT_SCALE_FACTOR,) -> 'Client':
         """
         Initializes an instance of client with a lot of default values and configurations.
 

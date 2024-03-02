@@ -1,11 +1,11 @@
-import subprocess, requests, shutil, sys, bs4, re, os
+import subprocess, requests, shutil, sys, bs4, re, os # Default Python libraries
 
-from client.client import *
-from client.config import *
+from client.client import * # Importing The Client/Task Manager
+from client.config import * # Importing The Config File
 
-from typing import List
+from typing import List # Type Hinting
 
-# Global variables
+# Global Variables Not In Config (Specific For Caching Only)
 SITE: str          = "https://cornellcuprobotics.com/"
 OUTPUT_PATH: str   = "resources/cache/"
 DOWNLOAD_PATH: str = "resources/download/"
@@ -13,6 +13,19 @@ SIZE: str          = "900x600!"
 EXT: str           = ".JPG"
 
 def convert(urlname: str) -> str:
+    """
+    Converts a given HTTP URL name to an acceptable file name, by stripping,
+    removing certain words, and adding spaces.
+
+    PARAMETERS
+    ----------
+    urlname - The URL name to convert.
+
+    RETURNS
+    -------
+    str - The converted URL name.
+    """
+
     rmwords: List[str] = ["C1C0CS", "BIZCOMM", "MINIBOTCS", "ECE", "_", "-"]
     for rmword in rmwords: urlname = urlname.replace(rmword, "")
 
@@ -23,6 +36,12 @@ def convert(urlname: str) -> str:
     return urlname.strip()
 
 def cache_website() -> None:
+    """
+    Pulls all files from the members page of the Cornell Cup Robotics website, filters
+    for specific image types, downloads them to a temporary directory, converts them
+    to a specific size using imagemagick, and then loads them onto the cache through
+    the client. Removes the temporary directories after completion.
+    """
     os.makedirs(DOWNLOAD_PATH, exist_ok=True)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
 
@@ -55,6 +74,12 @@ def cache_website() -> None:
     shutil.rmtree(OUTPUT_PATH)
 
 def cache_images(filenames: str) -> None:
+    """
+    Extracts the file paths and makes sure they exists/are valid, then converts
+    them to a specific size using imagemagick, and then loads them onto the cache.
+    Removes the temporary directories after completion.
+    """
+
     os.makedirs(OUTPUT_PATH, exist_ok=True)
 
     for filename in filenames:
@@ -76,5 +101,7 @@ def cache_images(filenames: str) -> None:
     shutil.rmtree(OUTPUT_PATH)
 
 if __name__ == '__main__':
+    # If No Arguments, Cache The Cornell Cup Robotics Website
     if len(sys.argv) == 1: cache_website()
+    # Else, Cache The Given Files From Arguments
     else: cache_images(sys.argv[1:])
