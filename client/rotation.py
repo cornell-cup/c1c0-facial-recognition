@@ -136,7 +136,7 @@ def close_serial() -> None:
 
 def format_msg(angle: int, negative: bool, absolute: bool) -> str:
     """
-	This method takes information about the angle of rotation and formats to be
+    This method takes information about the angle of rotation and formats to be
     able to be sent to the arduino to turn the servo.
 
     PARAMETERS

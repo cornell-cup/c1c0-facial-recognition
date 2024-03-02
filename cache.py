@@ -13,14 +13,14 @@ SIZE: str          = "900x600!"
 EXT: str           = ".JPG"
 
 def convert(urlname: str) -> str:
-	rmwords: List[str] = ["C1C0CS", "BIZCOMM", "MINIBOTCS", "ECE", "_", "-"]
-	for rmword in rmwords: urlname = urlname.replace(rmword, "")
+    rmwords: List[str] = ["C1C0CS", "BIZCOMM", "MINIBOTCS", "ECE", "_", "-"]
+    for rmword in rmwords: urlname = urlname.replace(rmword, "")
 
-	for i in range(1, len(urlname)):
-		if urlname[i].isupper():
-			urlname = urlname[:i] + " " + urlname[i:]
-			break
-	return urlname.strip()
+    for i in range(1, len(urlname)):
+        if urlname[i].isupper():
+            urlname = urlname[:i] + " " + urlname[i:]
+            break
+    return urlname.strip()
 
 def cache_website() -> None:
     os.makedirs(DOWNLOAD_PATH, exist_ok=True)

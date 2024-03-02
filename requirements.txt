@@ -1,10 +1,7 @@
-requests
-opencv-python
-numpy
-face_recognition
-Pillow
-num2words
-typing
-pyserial
-matplotlib
 bs4
+numpy
+requests
+setuptools
+opencv-python
+face_recognition
+face_recognition_models
