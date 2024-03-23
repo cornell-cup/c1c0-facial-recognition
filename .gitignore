@@ -1,4 +1,8 @@
-venv
-.cache
+# Temporary Directories
+.cache/
+venv/
+__pycache__/
+
+# Temporary Files
 .DS_Store
-__pycache__
+facial_comm.py
