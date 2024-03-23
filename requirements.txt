@@ -1,7 +1,8 @@
 bs4
-numpy
-requests
-setuptools
-opencv-python
 face_recognition
 face_recognition_models
+numpy
+opencv-python
+requests
+setuptools
+wheel

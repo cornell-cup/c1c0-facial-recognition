@@ -5,7 +5,7 @@ cache:
 	sudo venv/bin/python cache.py
 
 clean:
-	sudo rm -rf .cache/ client/__pycache/
+	sudo rm -rf .cache/ client/__pycache__/ __pycache__/
 
 install: venv
 	venv/bin/pip install -r requirements.txt
@@ -14,5 +14,5 @@ install: venv
 
 venv:
 	sudo rm -rf venv/
-	if [ "$(shell uname -s)" == "Darwin" ]; then python -m venv venv; fi
-	if [ "$(shell expr substr $(uname -s) 1 5)" == "Linux" ]; then python3.6 -m venv/ venv/; fi
+	if [ "$(shell uname -s)" == "Darwin" ]; then python -m venv venv/; fi
+	if [ "$(shell expr substr $(uname -s) 1 5)" == "Linux" ]; then python3.6 -m venv venv/; fi
