@@ -1,5 +1,9 @@
-requests
-picamera
+bs4
 face_recognition
-Pillow
-num2words
+face_recognition_models
+numpy
+opencv-python
+requests
+setuptools
+wheel
+zmq

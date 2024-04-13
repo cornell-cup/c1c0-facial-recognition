@@ -15,6 +15,6 @@ This program must be manually triggered by keyboard. It first gets images from R
 
 ### Archived Branches
 
-- `intel_demo`: A branch used right before a specific demo, lost its purpose afterwards, and became stale, so it was archived. 
+- `intel_demo`: A branch used right before a specific demo, lost its purpose afterwards, and became stale, so it was archived.
 
-To see the above archived branches, checkout the tags of this repository. 
+To see the above archived branches, checkout the tags of this repository.
