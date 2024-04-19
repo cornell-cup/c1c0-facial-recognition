@@ -1,7 +1,7 @@
 # Temporary Directories
+__pycache__/
 .cache/
 venv/
-__pycache__/
 
 # Temporary Files
 .DS_Store

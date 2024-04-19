@@ -4,6 +4,4 @@ face_recognition_models
 numpy
 opencv-python
 requests
-setuptools
-wheel
 zmq
