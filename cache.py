@@ -63,7 +63,7 @@ def cache_website() -> None:
             response = requests.get(url)
             f.write(response.content)
 
-        subprocess.call(["convert", downloadname, "-resize", SIZE, filename])
+        subprocess.call(["magick", downloadname, "-resize", SIZE, filename])
         print(f"Finished downloading image {i:02}: {url}")
 
     print("Started loading all images onto cache.")
