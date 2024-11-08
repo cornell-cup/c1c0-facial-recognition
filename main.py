@@ -3,7 +3,7 @@ import time, os # Default Python Libraries
 from client.client import * # Importing The Client/Task Manager
 
 # Global Variables (Sleep Time For Ability To See Results, Is Not Needed)
-SLEEP_TIME: float = 1
+SLEEP_TIME: float = 0.25
 
 if __name__ == '__main__':
     client: Client = Client(load=False, disp=True, prnt=True) # Creating The Client

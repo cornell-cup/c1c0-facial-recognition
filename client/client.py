@@ -164,7 +164,7 @@ class Client:
         self.disp: bool = disp; self.prnt: bool = prnt
         self.camera = Camera(camera) if self.open else None
         self.cache: bool = cache; self.cache_dir: str = cache_dir
-        self.face_number: int = 0; self.stall: float = 1.0
+        self.face_number: int = 0; self.stall: float = 0.5
         self.encoding_map = mappings if mappings is not None else {}
         self.scale_factor = DEFAULT_SCALE_FACTOR if scale_factor is None else scale_factor
 
