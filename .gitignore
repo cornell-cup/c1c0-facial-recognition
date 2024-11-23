@@ -6,3 +6,6 @@ venv/
 # Temporary Files
 .DS_Store
 facial_comm.py
+
+# Hidden Files
+.env

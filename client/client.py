@@ -92,16 +92,15 @@ class Client:
 
         name = ' '.join(names) if len(names) > 0 else "Face Num " + str(self.face_number)
 
-        with self.camera as cam:
-            if (prnt): print('Taking picture and starting analyzation process.')
-            time.sleep(self.stall); img: np.ndarray = cam.adjust_read()
+        if (prnt): print('Taking picture and starting analyzation process.')
+        time.sleep(self.stall); img: np.ndarray = self.camera.adjust_read()
 
-            if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
-            check_and_add_img(img, name, self.encoding_map, cache=self.cache, cache_dir=self.cache_dir)
-            results: any = self.analyze_faces(img)['matches']
-            pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
+        if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
+        check_and_add_img(img, name, self.encoding_map, cache=self.cache, cache_dir=self.cache_dir)
+        results: any = self.analyze_faces(img)['matches']
+        pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
 
-            if (disp): self.display(img, results)
+        if (disp): self.display(img, results)
 
         names: Set[str] = {name for name, _ in pruned}
         formatted: str = "[" + ", ".join(names) + "]"
@@ -124,15 +123,14 @@ class Client:
         List[str] - The names of the people recognized in the image.
         """
 
-        with self.camera as cam:
-            if (prnt): print('Taking picture and starting analyzation process.')
-            time.sleep(self.stall); img: np.ndarray = cam.adjust_read()
+        if (prnt): print('Taking picture and starting analyzation process.')
+        time.sleep(self.stall); img: np.ndarray = self.camera.adjust_read()
 
-            if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
-            results: any = self.analyze_faces(img)['matches']
-            pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
+        if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
+        results: any = self.analyze_faces(img)['matches']
+        pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
 
-            if (disp): self.display(img, results)
+        if (disp): self.display(img, results)
 
         names: Set[str] = {name for name, _ in pruned}
         formatted: str = "[" + ", ".join(names) + "]"

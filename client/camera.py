@@ -1,4 +1,4 @@
-import numpy as np, threading, time, cv2 # Default Python Libraries
+import numpy as np, time, cv2 # Default Python Libraries
 
 from client.config import DEFAULT_CAMERA # Default Configurations
 
@@ -32,25 +32,22 @@ class Camera:
 
     def __enter__(self: any) -> None:
         """
-        Attempts to open the camera, and start reading in frames from a thread. Should
-        be called by doing a `with Camera as cam` block. Just to keep camera from being
-        open for too long, and to ensure that the camera is closed after use.
+        Attempts to open the camera. Should be called by doing a `with Camera as cam`
+        block. Just to keep camera from being open for too long, and to ensure that
+        the camera is closed after use.
         """
 
         if not self.device.isOpened():
             if not self.device.open(self.camera):
                 raise OSError(f'Unable to open device at index: {self.camera}')
-
-        self.reader: threading.Thread = threading.Thread(target=self.read_image)
-        if not self.reader.is_alive(): self.reader.start()
         return self
 
     def __exit__(self: any, exc_type: any, exc_val: any, exc_tb: any) -> None:
         """
-        Attempts to merge with the reader thread and release camera devices, so the
-        camera can be shut down properly. Should be called once leaving (removing indent)
-        the `with Camera as cam` block. The parameters do not need to be passed in
-        manually, as they are automatically passed in by the `with` statement.
+        Attempts to release camera devices, so the camera can be shut down properly.
+        Should be called once leaving (removing indent) the `with Camera as cam`
+        block. The parameters do not need to be passed in manually, as they are
+        automatically passed in by the `with` statement.
 
         PARAMETERS
         ----------
@@ -59,7 +56,6 @@ class Camera:
         exc_tb   - The exception traceback.
         """
 
-        if self.reader.is_alive(): self.reader.join()
         self.device.release()
 
     def adjust_read(self: any, sat_mod: int = -10, brightness_mod: int = 10, timeout: int = 10) -> np.ndarray:
@@ -81,6 +77,7 @@ class Camera:
         ind: int = 0
         while ind < timeout:
             try:
+                self.read_image()
                 hsv: np.ndarray = cv2.cvtColor(self.image, cv2.COLOR_BGR2HSV)
 
                 result: np.ndarray = np.array(hsv, dtype=hsv.dtype)
@@ -111,7 +108,11 @@ class Camera:
         for _ in range(attempts):
             ret: bool; img: np.ndarray; ret, img = self.device.read()
 
-            if ret: self.image: np.ndarray = img; fnd: bool = True
+            if ret:
+                self.image: np.ndarray = img
+                fnd: bool = True
+                break
+
             time.sleep(0.1)
 
         if not fnd: raise OSError(f'No frames received after {attempts} attempts.')
