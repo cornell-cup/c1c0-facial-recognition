@@ -87,7 +87,7 @@ class Camera:
                 rgb: np.ndarray = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
                 return rgb
 
-            except cv2.error: ind += 1; time.sleep(0.5); continue
+            except cv2.error: ind += 1; time.sleep(0.1); continue
 
         raise OSError(f'Unable to adjust image after {timeout} attempts.')
 

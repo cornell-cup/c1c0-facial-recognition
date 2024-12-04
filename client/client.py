@@ -93,7 +93,7 @@ class Client:
         name = ' '.join(names) if len(names) > 0 else "Face Num " + str(self.face_number)
 
         if (prnt): print('Taking picture and starting analyzation process.')
-        time.sleep(self.stall); img: np.ndarray = self.camera.adjust_read()
+        img: np.ndarray = self.camera.adjust_read() if self.open else self.image
 
         if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
         check_and_add_img(img, name, self.encoding_map, cache=self.cache, cache_dir=self.cache_dir)
@@ -124,7 +124,7 @@ class Client:
         """
 
         if (prnt): print('Taking picture and starting analyzation process.')
-        time.sleep(self.stall); img: np.ndarray = self.camera.adjust_read()
+        img: np.ndarray = self.camera.adjust_read() if self.open else self.image
 
         if (prnt): print(f'Analyzing image: {img[0][0]}, {img[0][1]}, {img[0][2]}, ...')
         results: any = self.analyze_faces(img)['matches']
@@ -161,6 +161,7 @@ class Client:
         self.open = open; self.path: str = path; self.load: bool = load;
         self.disp: bool = disp; self.prnt: bool = prnt
         self.camera = Camera(camera) if self.open else None
+        self.image: np.ndarray = None;
         self.cache: bool = cache; self.cache_dir: str = cache_dir
         self.face_number: int = 0; self.stall: float = 0.5
         self.encoding_map = mappings if mappings is not None else {}
