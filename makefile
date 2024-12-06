@@ -15,4 +15,4 @@ install: venv
 
 venv:
 	if [ "$(shell uname -s)" = "Darwin" ]; then python3.11 -m venv venv/; fi
-	if [ "$(shell uname -s)" = "Linux" ]; then python3.6 -m venv venv/; fi
+	if [ "$(shell uname -s)" = "Linux" ]; then python3.7 -m venv venv/; fi
