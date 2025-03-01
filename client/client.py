@@ -1,4 +1,4 @@
-import numpy as np, time, cv2 # Default Python Libraries
+import numpy as np, time, cv2, os # Default Python Libraries
 
 from client.classify import check_faces, cload_images # Classification Functions
 from client.classify import cload_cache, check_and_add_img # Caching Functions
@@ -106,6 +106,29 @@ class Client:
         formatted: str = "[" + ", ".join(names) + "]"
         if (prnt): print(f"Recognized: {formatted}");
         return names
+    
+    def forget_face(self: any, prnt: bool = True) -> None:
+        """
+        Will take a picture and search the mapping for your name which
+        is used to delete your face from the vector mapping and delete
+        the encoding file matched to your face.
+
+        PARAMETERS
+        ----------
+        prnt - Whether or not to print the intermediate results.
+        """
+        img: np.ndarray = self.camera.adjust_read() if self.open else self.image
+        results: any = self.analyze_faces(img)['matches']
+        pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
+        names: Set[str] = {name for name, _ in pruned}
+        
+        for name in names:
+            if prnt:
+                print(f"Forgetting {name}")
+                time.sleep(1)
+            self.encoding_map.pop(name)
+            os.remove(f"{DEFAULT_CACHE_DIR}/{name}.enc")
+        
 
     def take_attendance(self: any, disp: bool = True, prnt: bool = True) -> List[str]:
         """
@@ -176,6 +199,9 @@ class Client:
 
             'attendance': (lambda _: self.take_attendance(disp=disp, prnt=prnt)),
             'a': (lambda _: self.take_attendance(disp=disp, prnt=prnt)),
+
+            'forget': (lambda _: self.forget_face(prnt=prnt)),
+            'f': (lambda _: self.forget_face(prnt=prnt)),
         }
 
         if (load): self.load_images()
