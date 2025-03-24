@@ -40,6 +40,7 @@ class Client:
         cv2.imshow(WINDOW_NAME, img); cv2.waitKey(0)
         cv2.waitKey(1); cv2.destroyWindow(WINDOW_NAME); cv2.waitKey(1)
 
+
     def classify_image(self: any, file: str, disp: bool = True, prnt: bool = True) -> List[str]:
         """
         Given a file, will classify the images and return a list of names of people recognized
@@ -72,6 +73,7 @@ class Client:
         formatted: str = "[" + ", ".join(names) + "]"
         if (prnt): print(f"Recognized: {formatted}");
         return names
+
 
     def learn_face(self: any, names: List[str], disp: bool = True, prnt: bool = True) -> List[str]:
         """
@@ -106,7 +108,8 @@ class Client:
         formatted: str = "[" + ", ".join(names) + "]"
         if (prnt): print(f"Recognized: {formatted}");
         return names
-    
+
+
     def forget_face(self: any, prnt: bool = True) -> None:
         """
         Will take a picture and search the mapping for your name which
@@ -121,14 +124,14 @@ class Client:
         results: any = self.analyze_faces(img)['matches']
         pruned: any = [(name, loc) for name, loc in results if name != UNKNOWN_FACE]
         names: Set[str] = {name for name, _ in pruned}
-        
+
         for name in names:
             if prnt:
                 print(f"Forgetting {name}")
                 time.sleep(1)
             self.encoding_map.pop(name)
             os.remove(f"{DEFAULT_CACHE_DIR}/{name}.enc")
-        
+
 
     def take_attendance(self: any, disp: bool = True, prnt: bool = True) -> List[str]:
         """
@@ -159,6 +162,7 @@ class Client:
         formatted: str = "[" + ", ".join(names) + "]"
         if (prnt): print(f"Recognized: {formatted}");
         return names
+
 
     def __init__(self: any, path: str = DEFAULT_PATH, open: bool = DEFAULT_OPEN, load: bool = DEFAULT_LOAD,
                  disp: bool = DEFAULT_DISP, prnt: bool = DEFAULT_PRINT, cache: bool = DEFAULT_CACHE,
@@ -207,6 +211,7 @@ class Client:
         if (load): self.load_images()
         if (cache): self.load_cache()
 
+
     def interpret_task(self: any, task: str) -> any:
         """
         Returns the function corresponding to the task name given.
@@ -222,6 +227,7 @@ class Client:
 
         self.task_map.setdefault(task, lambda _: print("Unrecognized command, please try again"))
         return self.task_map[task]
+
 
     def analyze_faces(self: any, img: np.ndarray) -> Mapping[str, List[Tuple[str, Tuple[int, int, int, int]]]]:
         """
@@ -240,6 +246,7 @@ class Client:
         resized: np.ndarray = cv2.resize(img, (0, 0), fx=self.scale_factor, fy=self.scale_factor)
         return { 'matches': check_faces(resized, self.encoding_map), 'face_locations': [] }
 
+
     def load_images(self: any) -> bool:
         """
         Loads images from the specified path if possible, returns true if images are loaded.
@@ -251,6 +258,7 @@ class Client:
 
         result = cload_images(self.path, self.encoding_map, cache=self.cache, cache_dir=self.cache_dir)
         return result is not None
+
 
     def load_cache(self: any) -> bool:
         """
