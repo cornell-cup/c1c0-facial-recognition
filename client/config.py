@@ -11,6 +11,7 @@ DEFAULT_PRINT: bool     = os.getenv('DEFAULT_PRINT', True) # Decides Whether To 
 DEFAULT_CACHE: bool     = os.getenv('DEFAULT_CACHE', True) # Decides Whether To Cache Images
 DEFAULT_CACHE_DIR: str  = os.getenv('DEFAULT_CACHE_DIR', '.cache') # Path To Cache Directory
 DEFAULT_CAMERA: int     = os.getenv('DEFAULT_CAMERA', None) # Camera Index / Identifier
+MAC_MODE: bool          = False  # True if on a Mac, false on Linux.
 
 # Facial Recognition Config.
 COLORS: List[Tuple[int, int, int]] = [(0, 0, 255), (0, 255, 0), (255, 0, 0)] # Bounding Box Colors
