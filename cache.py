@@ -63,7 +63,8 @@ def cache_website() -> None:
             response = requests.get(url)
             f.write(response.content)
 
-        subprocess.call(["magick", downloadname, "-resize", SIZE, filename])
+        cmdname = "magick" if MAC_MODE else "convert"
+        subprocess.call([cmdname, downloadname, "-resize", SIZE, filename])
         print(f"Finished downloading image {i:02}: {url}")
 
     print("Started loading all images onto cache.")
@@ -91,7 +92,8 @@ def cache_images(filenames: str) -> None:
         b_index: int = filename.rfind(".") if "." in filename else len(filename)
         diffname: str = OUTPUT_PATH + convert(filename[a_index:b_index]) + ".jpg"
 
-        subprocess.call(["convert", filename, "-resize", SIZE, diffname])
+        cmdname = "magick" if MAC_MODE else "convert"
+        subprocess.call([cmdname, filename, "-resize", SIZE, diffname])
         print(f"Converted {filename} to {diffname}")
 
     print("Started loading all images onto cache.")
