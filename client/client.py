@@ -104,7 +104,7 @@ class Client:
 
         names: Set[str] = {name for name, _ in pruned}
         formatted: str = "[" + ", ".join(names) + "]"
-        if (prnt): print(f"Recognized: {formatted}");
+        if (prnt): print(f"Recognized: {formatted}")
         return names
     
     def forget_face(self: any, prnt: bool = True) -> None:
