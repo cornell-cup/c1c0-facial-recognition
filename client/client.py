@@ -128,6 +128,7 @@ class Client:
                 time.sleep(1)
             self.encoding_map.pop(name)
             os.remove(f"{DEFAULT_CACHE_DIR}/{name}.enc")
+        return [name]
         
 
     def take_attendance(self: any, disp: bool = True, prnt: bool = True) -> List[str]:
